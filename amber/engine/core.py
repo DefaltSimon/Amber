@@ -5,7 +5,7 @@ from typing import Union
 from . import directory
 from .types_ import Room
 from .utils import Singleton
-from .exceptions import InvalidParameter, NotAllowed
+from .exceptions import InvalidParameter, NotAllowed,IdMissing
 
 
 log = logging.getLogger(__name__)
@@ -65,6 +65,19 @@ class Amber(metaclass=Singleton):
         for room in directory.obj_collector.rooms:
             room._finalize_loading()
 
+    def set_starting_point(self, room):
+        if not isinstance(room, (Room, str)):
+            raise TypeError("expected Room/str, got {}".format(type(room)))
+
+        if isinstance(room, str):
+            r_name = str(room)
+
+            room = directory.obj_collector.find_room_by_id(room)
+            if not room:
+                raise IdMissing("no such id: {}".format(r_name))
+
+        self.starting_room = room
+
     def walk_to(self, room: Union[Room, str]) -> Room:
         """
         Moves the player to a different room. A check
@@ -97,3 +110,7 @@ class Amber(metaclass=Singleton):
     def combine(self, item1, item2):
         # TODO implement
         pass
+
+    def start(self, autosave=True):
+        self._late_load()
+

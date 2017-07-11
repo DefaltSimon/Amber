@@ -4,7 +4,7 @@ from .exceptions import EventMissing
 
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
+
 
 class EventManager:
     def __init__(self, name, events: list):
@@ -30,10 +30,12 @@ class EventManager:
         else:
             return None
 
-
     def set_event_handler(self, event_name, fn):
         if event_name not in self._events.keys():
             raise EventMissing("{} is not a valid event!".format(event_name))
 
         if fn in self._events.values():
             log.warning("Event function {} for {} was already registered, overwriting".format(event_name, self._name))
+
+        log.info("{} for {} registered".format(event_name, self._name))
+        self._events[event_name] = fn

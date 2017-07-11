@@ -127,7 +127,7 @@ class Room:
         :param locations: a list of Room's that can be accessed from this room
         :param image: Path to the image that should be displayed in this room
         :param sound: Path to the sound that should be played here
-        :param room_id: Item id that you assign (OPTIONAL). MessageDefaults to the name if available, otherwise numbers (room_name1, room_name2, ...) are added
+        :param room_id: Item id that you assign (OPTIONAL). Defaults to the name if available, otherwise numbers (room_name1, room_name2, ...) are added
         """
         self._name = name
         self._desc = Description(description)
@@ -161,17 +161,15 @@ class Room:
 
         # Used for events
         events = ["enter", "leave", "description", "message", "name", "locations", "image", "sound"]
-        self.event = EventManager(self._name, events)
+        self._event_mgr = EventManager(self._name, events)
 
         # Add item to cache
         directory.obj_collector.add_room(self)
 
-    # TODO defer loading locations until the end
-
     # PROPERTIES
     @property
     def name(self) -> str:
-        res = self.event.dispatch_event("name", self._name)
+        res = self._event_mgr.dispatch_event("name", self._name)
         if res:
             return res
         else:
@@ -179,7 +177,7 @@ class Room:
 
     @property
     def description(self) -> Union[str, Description]:
-        res = self.event.dispatch_event("description", self._desc)
+        res = self._event_mgr.dispatch_event("description", self._desc)
         if res:
             return res
         else:
@@ -187,7 +185,7 @@ class Room:
 
     @property
     def initial_message(self) -> str:
-        res = self.event.dispatch_event("message", self._msg)
+        res = self._event_mgr.dispatch_event("message", self._msg)
         if res:
             return res
         else:
@@ -199,7 +197,7 @@ class Room:
 
     @property
     def locations(self) -> list:
-        res = self.event.dispatch_event("locations", self._locations)
+        res = self._event_mgr.dispatch_event("locations", self._locations)
         if res:
             return res
         else:
@@ -207,7 +205,7 @@ class Room:
 
     @property
     def image(self):
-        res = self.event.dispatch_event("image", self._image)
+        res = self._event_mgr.dispatch_event("image", self._image)
         if res:
             return res
         else:
@@ -215,26 +213,28 @@ class Room:
 
     @property
     def sound(self):
-        res = self.event.dispatch_event("sound", self._sound)
+        res = self._event_mgr.dispatch_event("sound", self._sound)
         if res:
             return res
         else:
             return self._sound
 
     # EVENT REGISTERING
-    def event(self, fn, event_name):
+    def event(self, event_name):
         """
         Registers an event handler via decorators
-        :param fn: Provided automatically by the decorator
         :param event_name: Your first parameter: name of the event (by property names)
         :return: function for the decorator to use
         """
-        if not callable(fn):
-            raise TypeError("not a function")
+        def real_dec(fn):
+            if not callable(fn):
+                raise TypeError("not a function")
 
-        # Register the event
-        self.event.set_event_handler(event_name, fn)
-        return fn
+            # Register the event
+            self._event_mgr.set_event_handler(event_name, fn)
+            return fn
+
+        return real_dec
 
     @staticmethod
     def handle_id_or_object(room_or_id):
@@ -299,7 +299,7 @@ class Room:
         Property specifying if the user's allowed to enter this room. Can be prevented by a custom event
         :return: bool
         """
-        res = self.event.dispatch_event("enter", self)
+        res = self._event_mgr.dispatch_event("enter", self)
         # None is the default return type (when there is no function registered)
         if res is None:
             res = True
@@ -312,7 +312,7 @@ class Room:
         Property indicating if the user can leave this room. Can be prevented by a custom event handler
         :return: bool
         """
-        res = self.event.dispatch_event("leave", self)
+        res = self._event_mgr.dispatch_event("leave", self)
         if res is None:
             res = True
 
