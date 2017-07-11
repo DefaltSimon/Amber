@@ -1,0 +1,104 @@
+.body {
+    font-family: $font-primary, $font-secondary, $font-tertiary, Arial;
+    
+    flex-direction: row;
+    justify-content: center;
+    
+    margin: 35px 10px;
+    max-height: calc(100% - 70px);
+    width: calc(100% - 20px);
+    
+    overflow: hidden;
+    
+    &--inv {
+        padding: 10px;
+        width: calc(17.5% - 20px);
+        align-items: flex-end;
+        margin-right: 10px;
+        
+        height: 100%;
+        
+        &__title {
+            font-size: 1.2em;
+            font-weight: 700;
+            
+            span {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-left: auto;
+            }
+        }
+        
+        &__list {
+            font-weight: 500;
+            font-size: 1.1em;
+            width: 100%;
+            text-align: end;
+            padding: 10px;
+            
+            li {
+                color: darken($color-grey-blue, 10%);
+                cursor: pointer;
+                @include transition();
+            }
+            
+            li:hover {
+                color: darken($color-orange-deep, 20%);
+            }
+        }
+    }
+    
+    &--main {
+        width: 65%;
+        max-height: 100%;
+        
+        align-items: center;
+        
+        border: 2px solid $color-black;
+        padding: 15px 10px;
+        
+    }
+    
+    &--locations {
+        padding: 10px;
+        width: calc(17.5% - 20px);
+        align-items: flex-start;
+        margin-right: 10px;
+        
+        height: 100%;
+        
+        &__title {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-left: 5px;
+            
+            span {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-right: auto;
+                margin-left: 15px;
+            }
+        }
+        
+        &__list {
+            font-weight: 500;
+            font-size: 1.1em;
+            width: 100%;
+            text-align: start;
+            padding: 10px 2px 0 18px;
+            
+            li {
+                color: darken($color-grey-blue, 10%);
+                cursor: pointer;
+                @include transition();
+            }
+            
+            li:hover {
+                color: darken($color-orange, 20%);
+            }
+        }
+    }
+    
+}

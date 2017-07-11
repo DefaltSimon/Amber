@@ -1,0 +1,54 @@
+/*----------------------------------*\
+    headings variables
+\*----------------------------------*/
+
+/*
+$md-down = less than 1200px
+$sm-down = less than 992px
+$xs-down = less than 768px
+ */
+
+$headings: (
+        'h1, .h1':
+        (/* h1 */
+                $default: inherit,
+            //$md-down: px,
+            //$sm-down: px,
+            //s$xs-down: px
+        ),
+        'h2, .h2':
+        (/* h2 */
+                $default: inherit,
+            //$md-down: px,
+            //$sm-down: px,
+            //s$xs-down: px
+        ),
+        'h3, .h3':
+        (/* h3 */
+                $default: inherit,
+            //$md-down: px,
+            //$sm-down: px,
+            //s$xs-down: px
+        ),
+        'h4, .h4':
+        (/* h4 */
+                $default: inherit,
+            //$md-down: px,
+            //$sm-down: px,
+            //s$xs-down: px
+        ),
+        'h5, .h5':
+        (/* h5 */
+                $default: inherit,
+            //$md-down: px,
+            //$sm-down: px,
+            //s$xs-down: px
+        ),
+        'h6, .h6':
+        (/* h6 */
+                $default: inherit,
+            //$md-down: px,
+            //$sm-down: px,
+            //s$xs-down: px
+        )
+);

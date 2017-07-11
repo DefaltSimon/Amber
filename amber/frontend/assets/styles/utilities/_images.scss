@@ -1,0 +1,22 @@
+/*----------------------------------*\
+    Images
+\*----------------------------------*/
+.img {
+    display: block;
+    width: 100%;
+    height: auto;
+    
+    /* round image */
+    &--circle {
+        border-radius: 50%;
+    }
+    
+    &__svg {
+        width: 30%;
+        height: 100%;
+        
+        &:not(.right) {
+            margin-left: auto;
+        }
+    }
+}

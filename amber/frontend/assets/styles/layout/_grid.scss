@@ -1,0 +1,195 @@
+/*----------------------------------*\
+    Grid
+\*----------------------------------*/
+/*
+	Container and row
+*/
+/* Container main css and it's width */
+.container {
+    /*
+        Responsive media query
+        On Extra-Small screens and down, container is full width
+    */
+    /* Width 768px on small devices (768px and more) */
+    @media #{$sm-up} {
+        width: 768px;
+    }
+
+    /* Width 936px on medium devices (960px and more) */
+    @media #{$md-up} {
+        width: 960px;
+    }
+
+    /* Width 1140px on large devices (1160px and more) */
+    @media #{$lg-up} {
+        width: 1140px;
+    }
+
+    /* Width 1440px on large devices (1440px and more) */
+    @media #{$extra-up} {
+        width: 1440px;
+    }
+}
+
+/* Fluid container aka full width */
+.container {
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: $padding + $container-space;
+    padding-left: $padding + $container-space;
+}
+
+.container-fluid {
+    margin-right: auto;
+    margin-left: auto;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Row is wraper of columns, it removes extra padding of columns left and right to fit container width */
+.row {
+    margin-right: -$padding;
+    margin-left: -$padding;
+}
+
+/* Main flex class, without this, flex positioning is not working. Use "row" when using columns, if not, use "flex" */
+.flex,
+.row {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
+/*
+	Flex alignment
+*/
+.flex {
+    /*
+	  Properties for parents - containers
+		Direction of displayed flex items
+	*/
+    /* Direction of items left to right */
+    &--row {
+        flex-direction: row;
+        -webkit-flex-direction: row;
+    }
+    /* Direction of items right to left */
+    &--row-reverse {
+        flex-direction: row-reverse;
+        -webkit-flex-direction: row-reverse;
+    }
+    /* Direction of items top to bottom */
+    &--column {
+        flex-direction: column;
+        -webkit-flex-direction: column;
+    }
+    /* Direction of items bottom to top */
+    &--column-reverse {
+        flex-direction: column-reverse;
+        -webkit-flex-direction: column-reverse;
+    }
+    /*
+	  Content alignment on main axis - X axis
+	*/
+    /* Justify content left */
+    &--left {
+        justify-content: flex-start;
+        -webkit-justify-content: flex-start;
+    }
+    /* Justify content right */
+    &--right {
+        justify-content: flex-end;
+        -webkit-justify-content: flex-end;
+    }
+    /* Justify content in center */
+    &--center {
+        justify-content: center;
+        -webkit-justify-content: center;
+    }
+    /* Justify content with space between it */
+    &--between {
+        justify-content: space-between;
+        -webkit-justify-content: space-between;
+    }
+    /* Justify content with space around it */
+    &--around {
+        justify-content: space-around;
+        -webkit-justify-content: space-around;
+    }
+    /*
+	  Content alignment on cross axis - Y axis
+	*/
+    /* Align items on top */
+    &--top {
+        align-items: flex-start;
+        -webkit-align-items: flex-start;
+    }
+    /* Align items on bottom */
+    &--bottom {
+        align-items: flex-end;
+        -webkit-align-items: flex-end;
+    }
+    /* Align items vertically in center */
+    &--middle {
+        align-items: center;
+        -webkit-align-items: center;
+    }
+    /* Stretch items to fill container */
+    &--stretch {
+        align-items: stretch;
+        -webkit-align-items: stretch;
+    }
+    /*
+	  Properties for children - flex items
+	*/
+    /* Align flex item on top */
+    &__item-top {
+        align-self: flex-start;
+        -webkit-align-self: flex-start;
+    }
+    /* Align flex item on bottom */
+    &__item-bottom {
+        align-self: flex-end;
+        -webkit-align-self: flex-end;
+    }
+    /* Align flex item in center */
+    &__item-middle {
+        align-self: center;
+        -webkit-align-self: center;
+    }
+    /* Stretch flex item to fill container */
+    &__item-stretch {
+        align-self: stretch;
+        -webkit-align-self: stretch;
+    }
+}
+
+/*
+	Columns
+*/
+/* default styling for column */
+[class*=' col-'],
+[class^='col-'] {
+    width: 100%;
+    padding-right: $padding;
+    padding-left: $padding;
+}
+
+/* set column width */
+@mixin col-width($per) {
+    max-width: $per;
+    flex-basis: $per;
+}
+
+/* create classes */
+@each $pre, $point in $breakpoints {
+    @media #{$point}{
+        @for $i from 1 through $grid {
+            .col-#{$pre}-#{$i} {
+                @include col-width(100%/$grid*$i)
+            }
+        }
+    }
+}

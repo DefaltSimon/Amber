@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <!-- Page details -->
+    <meta name="description" content="">
+    <meta name="keywords" content="point and click, game, 2d, point, click, adventure">
+    <meta name="author" content="DefaltSimon">
+
+    <!-- Visual info -->
+    <title>{{ pageName }}</title>
+    <link rel="icon" type="image/x-icon" href="">
+    <meta name="theme-color" content="#161616">
+    <!-- Css -->
+    <link href="assets/styles/main.css" rel="stylesheet">
+</head>
+
+<body>
+<main>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="flex">
+                <nav class="header__links">
+                    <a href="#"></a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <div class="body container-fluid flex">
+        <div class="body--inv flex flex--column">
+
+            <div class="body--inv__title pb20 flex">
+                <img src="assets/images/backpack.svg" alt="Backpack Item Icon" class="img__svg">
+                <span>Inventory</span>
+            </div>
+            <ul class="body--inv__list">
+                <li>Spoon</li>
+                <li>Cigarette</li>
+                <li>Food</li>
+                <li>Shotgun</li>
+            </ul>
+        </div>
+        <div class="body--main room">
+            <!-- auto-generated content -->
+
+            <div class="room--name">Outside</div>
+            <img src="assets/images/floor3.png" alt="" class="room--image">
+            <div class="room--topdetails">You take the shotgun. However, it is not loaded.</div>
+            <div class="room--details">
+                You're standing in the middle of a hallway. At the end of the hallway you can see a <span class="room--action">Door</span>.
+                There's an elevator connecting this floor with the upper one. Next to it there is a window. You can see far across the city.
+            </div>
+
+        </div>
+        <div class="body--locations flex flex--column">
+            <div class="body--locations__title pb20 flex">
+                <img src="assets/images/map.svg" alt="Map Icon" class="img__svg right">
+                <span>Places</span>
+            </div>
+
+            <ul class="body--locations__list">
+                <li>Garden</li>
+                <li>Living Room</li>
+                <li>Street</li>
+            </ul>
+
+        </div>
+    </div>
+
+    <!-- Footer
+    <footer class="footer">
+        <div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+    </footer> -->
+
+    <!-- End -->
+</main>
+<!-- custom game theme -->
+<style>
+    body {
+        background: #cacaca;
+    }
+</style>
+<!-- generated content for connection -->
+<script>
+    var host = "{{ host }}";
+    var port = {{ port }};
+    var gameName = "{{ name }}";
+</script>
+<!--<script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script> -->
+<script src="assets/scripts/main.js"></script>
+</body>
+</html>

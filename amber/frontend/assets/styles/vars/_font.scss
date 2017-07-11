@@ -1,0 +1,48 @@
+/*----------------------------------*\
+    font variables
+\*----------------------------------*/
+
+/* importing font */
+/*
+@font-face {
+  font-family: neki;
+  src: url(./fonts/neki.otf);
+  font-weight: 700;
+}
+
+*/
+
+@font-face {
+    font-family: Raleway;
+    src: url("../fonts/Raleway-Regular.ttf");
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: "Raleway Black";
+    src: url("../fonts/Raleway-Black.ttf");
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: "Raleway Light";
+    src: url("../fonts/Raleway-Light.ttf");
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: "Raleway Medium";
+    src: url("../fonts/Raleway-Medium.ttf");
+    font-weight: 500;
+}
+
+/* Font Families */
+$font-primary: "Raleway";
+$font-secondary: "";
+$font-tertiary: "";
+
+/* Font Weights */
+$light: 300;
+$normal: 400;
+$medium: 500;
+$bold: 700;

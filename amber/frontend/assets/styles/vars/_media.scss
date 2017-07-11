@@ -1,0 +1,78 @@
+/*----------------------------------*\
+    spacings variables
+\*----------------------------------*/
+
+/************\
+    header
+\************/
+$header-breakpoint: 992px;
+$header-down: 'only screen and (max-width : #{$header-breakpoint - 1px})';
+$header-up: 'only screen and (min-width : #{$header-breakpoint})';
+
+/*************\
+  breakpoints
+\*************/
+
+/* default */
+$d-min: 0px;
+$d-max: 319px;
+
+/* xs2 */
+$xs2-min: 320px;
+$xs2-max: 479px;
+
+/* xs */
+$xs-min: 480px;
+$xs-max: 767px;
+
+/* sm */
+$sm-min: 768px;
+$sm-max: 991px;
+
+/* md */
+$md-min: 992px;
+$md-max: 1199px;
+
+/* lg */
+$lg-min: 1200px;
+$lg-max: 1439px;
+
+/* lg2 */
+$extra-min: 1440px;
+
+/******************\
+  @media variables
+\******************/
+
+/* 0 px */
+$default: 'only screen and (min-width : #{$d-min})';
+
+/* 320 px */
+$xs3-down: 'only screen and (max-width : #{$d-max})'; // 320 and lower
+$xs2-up: 'only screen and (min-width : #{$xs2-min})'; // 320 and higher
+
+/* 480 px */
+$xs2-down: 'only screen and (max-width : #{$xs2-max})'; // 480 and lower
+$xs-up: 'only screen and (min-width : #{$xs-min})'; // 480 and higher
+
+/* 768 px */
+$xs-down: 'only screen and (max-width : #{$xs-max})'; // 768 and lower
+$sm-up: 'only screen and (min-width : #{$sm-min})'; // 768 and higher
+
+/* 992 px */
+$sm-down: 'only screen and (max-width : #{$sm-max})'; // 992 and lower
+$md-up: 'only screen and (min-width : #{$md-min})'; // 992 and higher
+
+/* 1200 px */
+$md-down: 'only screen and (max-width : #{$md-max})'; // 1200 and lower
+$lg-up: 'only screen and (min-width : #{$lg-min})'; // 1200 and higher
+
+/* 1440 px */
+$lg-down: 'only screen and (max-width : #{$lg-max})'; // 1440 and lower
+$extra-up: 'only screen and (min-width : #{$extra-min})'; // 1440 and higher
+
+/* only  */
+$xs-only: 'only screen and (min-width : #{$d-min}) and (max-width : #{$xs-max})';
+$sm-only: 'only screen and (min-width : #{$sm-min}) and (max-width : #{$sm-max})';
+$md-only: 'only screen and (min-width : #{$md-min}) and (max-width : #{$md-max})';
+$lg-only: 'only screen and (min-width : #{$lg-min}) and (max-width : #{$lg-max})';

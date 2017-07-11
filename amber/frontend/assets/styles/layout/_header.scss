@@ -1,0 +1,34 @@
+/*----------------------------------*\
+    Header
+\*----------------------------------*/
+.header {
+    z-index: 997;
+    /*
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    */
+
+    &__links {
+        z-index: 998;
+
+        @media #{$header-down}{
+            visibility: hidden;
+            opacity: 0;
+            @include transition();
+
+            &.open {
+                visibility: visible;
+                opacity: 1;
+            }
+        }
+    }
+
+    &__btn {
+        z-index: 999;
+        @media #{$header-up}{
+            display: none;
+        }
+    }
+}

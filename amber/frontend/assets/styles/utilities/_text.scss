@@ -1,0 +1,58 @@
+/*----------------------------------*\
+    Text
+\*----------------------------------*/
+/*
+	Text properties
+*/
+/* text colors */
+.text {
+    @each $name, $value in $colors {
+        &--#{$name} {
+            color: #{$value};
+        }
+    }
+}
+
+/*
+font weight
+ */
+/* text thin */
+.text-thin {
+    font-weight: $light;
+}
+
+/* text normal */
+.text-normal {
+    font-weight: $normal;
+}
+
+/* text bold */
+.text-bold {
+    font-weight: $bold;
+}
+
+/*
+text alignment
+ */
+/* Align text in center */
+.text-center {
+    text-align: center;
+}
+
+/* Align text right */
+.text-right {
+    text-align: right;
+}
+
+/*
+text transform
+ */
+/* Uppercase text */
+.text-uppercase {
+    text-transform: uppercase;
+}
+
+/* Capitalize text */
+.text-capitalize {
+    text-transform: capitalize;
+}

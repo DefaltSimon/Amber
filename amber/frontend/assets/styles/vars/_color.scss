@@ -1,0 +1,27 @@
+/*----------------------------------*\
+    color variables
+\*----------------------------------*/
+
+/* color variables */
+$color-white: #fff;
+$color-grey: #9e9e9e;
+$color-black: #000;
+
+$color-orange: #ff9800;
+$color-orange-deep: #ff5722;
+$color-brown: #795548;
+$color-grey-blue: #607d8b;
+$color-blue: #1976d2;
+$color-indigo: #536dfe;
+$color-green: #4caf50;
+$color-teal: #009688;
+
+/* colors you want to include in text and background */
+$colors: (
+        'white': $color-white,
+);
+
+/* percentage of darkening color */
+$darken: 5%;
+/* percentage of lightening color */
+$lighten: 8%;

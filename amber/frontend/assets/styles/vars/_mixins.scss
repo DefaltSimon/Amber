@@ -1,0 +1,30 @@
+/*----------------------------------*\
+    mixins
+\*----------------------------------*/
+
+/* Transitions */
+@mixin transition($args: 200ms) {
+    -webkit-transition: $args;
+    -moz-transition: $args;
+    -ms-transition: $args;
+    -o-transition: $args;
+    transition: $args;
+}
+
+/* Transforms */
+@mixin transform($args) {
+    -webkit-transform: $args;
+    -moz-transform: $args;
+    -ms-transform: $args;
+    -o-transform: $args;
+    transform: $args;
+}
+
+/* Box-shaddow */
+@mixin box-shaddow($args) {
+    -webkit-box-shaddow: $args;
+    -moz-box-shaddow: $args;
+    -ms-box-shaddow: $args;
+    -o-box-shaddow: $args;
+    box-shaddow: $args;
+}

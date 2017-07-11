@@ -1,0 +1,31 @@
+/*----------------------------------*\
+    elements visibility
+\*----------------------------------*/
+
+.show {
+    display: none;
+
+    &-xs {
+        @media #{$xs-only} {
+            display: flex;
+        }
+    }
+
+    &-sm {
+        @media #{$sm-only} {
+            display: flex;
+        }
+    }
+
+    &-md {
+        @media #{$md-only} {
+            display: flex;
+        }
+    }
+
+    &-lg {
+        @media #{$lg-only} {
+            display: flex;
+        }
+    }
+}

@@ -1,0 +1,155 @@
+/*----------------------------------*\
+    globals
+\*----------------------------------*/
+html {
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    line-height: 1;
+    overflow-x: hidden;
+    margin: 0;
+    line-height: 1.6;
+    //color: $color-black;
+    //font-size: 14px;
+    //font-family: $font-primary;
+    height: 100vh;
+    width: 100vw;
+    
+    background-color: darken($color-white, 3%);
+}
+
+section {
+    position: relative;
+}
+
+iframe {
+    border: 0;
+}
+
+main {
+    display: block;
+    height: 100%;
+    width: calc(100% - 12px);
+    margin: 0 6px;
+}
+
+ol,
+ul {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+}
+
+li {
+    display: block;
+}
+
+dl {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+dd {
+    margin-left: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-size: inherit;
+    margin: 0;
+}
+
+i {
+    font-weight: $normal;
+}
+
+blockquote {
+    margin: 0;
+    padding: 0;
+}
+
+sup {
+    position: relative;
+    top: -.5em;
+    vertical-align: baseline;
+    font-size: 75%;
+    line-height: 0;
+}
+
+strong {
+    font-weight: bold;
+}
+
+figure {
+    margin: 0;
+}
+
+img {
+    border: 0;
+    max-width: 100%;
+    height: auto;
+    vertical-align: middle;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    text-align: inherit;
+    text-transform: inherit;
+    font: inherit;
+    -webkit-font-smoothing: inherit;
+    letter-spacing: inherit;
+    background: none;
+    cursor: pointer;
+    overflow: visible;
+    &:focus {
+        outline: 0;
+    }
+}
+
+form {
+    width: 100%;
+}
+
+p {
+    margin: 0 0 10px;
+}
+
+::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+    outline: 0;
+}
+
+:focus {
+    outline: 0;
+}
+
+.overflow {
+    overflow: hidden;
+}
+
+/* Elements have padding and border included in the element's total width and height */
+*,
+*:after,
+*:before {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}

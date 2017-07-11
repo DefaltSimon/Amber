@@ -1,0 +1,49 @@
+/*----------------------------------*\
+    Spacings
+\*----------------------------------*/
+/*
+	Margins and paddings
+*/
+@each $prefix, $meaning in $contains {
+    @each $size in $sizes {
+        .#{$prefix}#{$size} {
+            #{$meaning}: $size*1px;
+        }
+    }
+}
+
+@if $spacing-md == 'true' {
+    @media #{$md-down} {
+        @each $prefix, $meaning in $contains {
+            @each $size in $sizes {
+                .#{$prefix}#{$size}-md {
+                    #{$meaning}: $size*1px;
+                }
+            }
+        }
+    }
+}
+
+@if $spacing-sm == 'true' {
+    @media #{$sm-down} {
+        @each $prefix, $meaning in $contains {
+            @each $size in $sizes {
+                .#{$prefix}#{$size}-sm {
+                    #{$meaning}: $size*1px;
+                }
+            }
+        }
+    }
+}
+
+@if $spacing-xs == 'true' {
+    @media #{$xs-down} {
+        @each $prefix, $meaning in $contains {
+            @each $size in $sizes {
+                .#{$prefix}#{$size}-xs {
+                    #{$meaning}: $size*1px;
+                }
+            }
+        }
+    }
+}

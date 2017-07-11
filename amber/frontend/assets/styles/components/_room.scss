@@ -1,0 +1,48 @@
+.room {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    /* Layout items */
+    &--name {
+        font-size: 1.35em;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    &--image {
+        width: 50%;
+        height: auto;
+    }
+    
+    &--topdetails {
+        margin-top: 15px;
+        margin-bottom: 10px;
+        
+        font-style: italic;
+        font-weight: 500;
+        font-size: 1em;
+    }
+    
+    &--details {
+        width: 80%;
+        font-size: 1em;
+        text-align: justify;
+        
+        color: lighten($color-black, 5%);
+    }
+    
+    /* other styles */
+    
+    &--action {
+        color: darken($color-orange-deep, 25%);
+        cursor: pointer;
+        font-weight: 700;
+        
+        @include transition();
+        
+        &:hover {
+            color: transparentize(darken($color-orange, 35%), 0.2);
+        }
+    }
+}
