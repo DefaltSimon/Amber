@@ -1,5 +1,6 @@
 # coding=utf-8
 import asyncio
+import webbrowser
 import logging
 import os
 
@@ -42,13 +43,14 @@ def _run_flask():
     app.run(debug=False, host=HOST, port=FLASK_PORT)
 
 
-def run():
+def run(open_browser=True):
     log.info("Starting...")
     try:
         _run_flask()
 
-        page_url = "http://{}:{}".format(HOST, FLASK_PORT)
-        # webbrowser.open(page_url)
+        if open_browser:
+            page_url = "http://{}:{}".format(HOST, FLASK_PORT)
+            webbrowser.open(page_url)
 
         loop.create_task(socket.start())
         loop.run_forever()
