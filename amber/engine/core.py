@@ -1,11 +1,15 @@
 # coding=utf-8
 import logging
+import time
 from typing import Union
 
 from . import directory
-from .types_ import Room
+from .types_ import Room, Item, Blueprint
 from .utils import Singleton
-from .exceptions import InvalidParameter, NotAllowed,IdMissing
+from .exceptions import NotAllowed, IdMissing, NoSuchBlueprint
+
+# Flask webmodule import
+from ..web_modules.web_core import run_web
 
 
 log = logging.getLogger(__name__)
@@ -17,7 +21,7 @@ class MessageDefaults:
         "use", "failed_use", "failed_pickup", "failed_combine"
     )
 
-    def __init__(self, use:str = None, failed_use:str = None, failed_pickup:str = None, failed_combine:str = None):
+    def __init__(self, use: str = None, failed_use: str = None, failed_pickup: str = None, failed_combine: str = None):
         """
         MessageDefaults is a class designed to simplify general messages
         This applies ONLY if not overridden by an Item!
@@ -47,19 +51,20 @@ class Amber(metaclass=Singleton):
         self.description = description
         self.version = version
 
-        # Internals
-
         self.current_room = None
         self.previous_room = None
         self.starting_room = None
 
+        self.inventory = []
 
+        # Internals
+        self._start_time = time.time()
 
         # Add instance ref to global directory
         if not directory.is_in_world("amber"):
             directory.add_to_world(self, "amber")
 
-
+    # noinspection PyProtectedMember
     @staticmethod
     def _late_load():
         for room in directory.obj_collector.rooms:
@@ -90,10 +95,10 @@ class Amber(metaclass=Singleton):
 
             room = directory.obj_collector.find_room_by_id(room)
             if not room:
-                raise InvalidParameter("{} does not exist".format(r_name))
+                raise IdMissing("{} does not exist".format(r_name))
 
         if not isinstance(room, (Room, str)):
-            raise InvalidParameter("room: expected Room/str, got {}".format(type(room)))
+            raise TypeError("room: expected Room/str, got {}".format(type(room)))
 
         # If
         if not self.current_room.can_leave:
@@ -107,10 +112,42 @@ class Amber(metaclass=Singleton):
 
         return self.current_room
 
-    def combine(self, item1, item2):
-        # TODO implement
-        pass
+    @staticmethod
+    def combine(item1: Union[str, Item], item2: Union[str, Item]):
+        """
+        Combines two items together
+        :param item1: First item to combine
+        :param item2: Second item to combine
+        :return: Item that is made
+        """
+        # Check types
+        item1 = Item.handle_id_or_object(item1)
+        item2 = Item.handle_id_or_object(item2)
 
-    def start(self, autosave=True):
+        # Find matching blueprint
+        bp = None
+        for r in item2.blueprints + item1.blueprints:
+            print("f: " + r.result.name)
+            assert isinstance(r, Blueprint)
+
+            if r.matches_items(item1, item2):
+                bp = r
+                break
+
+        if not bp:
+            raise NoSuchBlueprint("no blueprint matching {} and {}".format(item1.name, item2.name))
+
+        # Return new item
+        return bp.result
+
+    def start(self, autosave=True, open_browser=True):
+        # TODO implement autosave and saving
+        """
+        Begins the game. This function MUST be placed at the end of the file.
+        :param autosave: Whether to enable autosave or not
+        :param open_browser: If you want to automatically open the browser
+        :return: None
+        """
         self._late_load()
 
+        run_web(self, open_browser)
