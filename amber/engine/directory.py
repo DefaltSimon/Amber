@@ -86,12 +86,11 @@ class ObjectCollector(metaclass=Singleton):
         """
         # if not isinstance(recipe, Room):
         #     raise TypeError("expected Blueprint, got {}".format(type(recipe)))
-        if bp not in self.items:
-            log.debug("Adding blueprint:{} to cache".format(bp.name))
+        if bp not in self.blueprints:
+            log.debug("Adding blueprint:{} to cache".format(bp.id))
             self.blueprints.append(bp)
         else:
-            log.warning("Blueprint {} was already in cache".format(bp.name))
-
+            log.warning("Blueprint {} was already in cache".format(bp.id))
 
     def find_item_by_id(self, item_id: str):
         """

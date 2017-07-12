@@ -54,6 +54,7 @@ def _get_room_postponed(room_id):
 # Regex for use in descriptions
 desc_regex = re.compile(r"({\w+\|\w+})", re.MULTILINE)
 
+
 class Description:
     def __init__(self, string: Union[str, list], desc_id=None):
         """
@@ -79,7 +80,6 @@ class Description:
             raise RuntimeError("object with id '{}' already exists".format(desc_id))
         else:
             self.id = _generate_id(desc_id)
-
 
     def _parse_string(self):
         self._groups = list(desc_regex.findall(self.text))
@@ -118,7 +118,8 @@ class Description:
 
 
 class Room:
-    def __init__(self, name: str, description:Union[str, list] = None, initial_msg:str = None, locations:list = None, image=None, sound=None, room_id=None):
+    def __init__(self, name: str, description: Union[str, list] = None, initial_msg: str = None, locations: list = None,
+                 image=None, sound=None, room_id=None):
         """
         Creates a room that the player "can" step in
         :param name: Name of the room, displayed at the top
@@ -154,7 +155,6 @@ class Room:
             raise RuntimeError("object with id '{}' already exists".format(room_id))
         else:
             self.id = _generate_id(room_id)
-
 
         # Internal vars
         self._entered = False
@@ -287,7 +287,6 @@ class Room:
         if not amber:
             raise AmberException("Amber is not yet instantiated, do so at the top of the script!")
 
-
         if amber.starting_room is not None:
             log.warning("starting room was already set, but still overwriting")
 
@@ -297,7 +296,7 @@ class Room:
     def can_enter(self) -> bool:
         """
         Property specifying if the user's allowed to enter this room. Can be prevented by a custom event
-        :return: bool
+        :return: bool/str
         """
         res = self._event_mgr.dispatch_event("enter", self)
         # None is the default return type (when there is no function registered)
@@ -310,7 +309,7 @@ class Room:
     def can_leave(self) -> bool:
         """
         Property indicating if the user can leave this room. Can be prevented by a custom event handler
-        :return: bool
+        :return: bool/str
         """
         res = self._event_mgr.dispatch_event("leave", self)
         if res is None:
@@ -320,7 +319,8 @@ class Room:
 
 
 class Blueprint:
-    def __init__(self, ingredient1, ingredient2, result, message: str = None, recipe_id:str = None):
+    # noinspection PyProtectedMember
+    def __init__(self, ingredient1, ingredient2, result, message: str = None, recipe_id: str = None):
         """
         Binds two items together to they can form another item
         :param ingredient1: Item
@@ -331,11 +331,15 @@ class Blueprint:
         """
         ingredient1 = Item.handle_id_or_object(ingredient1)
         ingredient2 = Item.handle_id_or_object(ingredient2)
-        result      = Item.handle_id_or_object(result)
+        result = Item.handle_id_or_object(result)
 
-        self.item1   = ingredient1
-        self.item2   = ingredient2
-        self._result = result
+        self.item1 = ingredient1
+        self.item2 = ingredient2
+        self.result = result
+
+        # Add this Blueprints to the Item's _blueprints
+        ingredient1._blueprints.append(self)
+        ingredient2._blueprints.append(self)
 
         self._msg = message
 
@@ -349,42 +353,63 @@ class Blueprint:
 
         directory.obj_collector.add_blueprint(self)
 
+    # Utility functions
+    def matches_items(self, item1, item2):
+        item1 = Item.handle_id_or_object(item1)
+        item2 = Item.handle_id_or_object(item2)
+
+        print(item1.name)
+        print(item2.name)
+        print("-----------")
+
+        ls = [self.item1, self.item2]
+        return item1 in ls and item2 in ls
+
+    def is_result(self, item):
+        item = Item.handle_id_or_object(item)
+
+        return item == self.result
+
 
 class Item:
-    def __init__(self, name, description:Union[str, list] = None, recipes:list = None, item_id:str = None):
+    def __init__(self, name, description: Union[str, list] = None, blueprints: list = None, item_id: str = None):
+        """
+        Creates an Item.
+        :param name: Name of the item
+        :param description: Its description, when used
+        :param blueprints: Blueprints, containing items that can be made from this one
+        :param item_id: Item ID that you can assign (OPTIONAL, see Room initialization)
+        """
         self._name = name
         self._desc = Description(description)
 
-        self._recipes = []
-        # Parses recipes / gets instances if id is provided
-        if recipes:
-            for rec in recipes:
+        self._blueprints = []
+        # Parses recipes
+        if blueprints:
+            for rec in blueprints:
 
                 if isinstance(rec, Blueprint):
-                    self._recipes.append(rec)
+                    self._blueprints.append(rec)
                 elif isinstance(rec, str):
                     # Find by id
                     f_rec = directory.obj_collector.find_recipe_by_id(rec)
                     if f_rec:
-                        self._recipes.append(f_rec)
+                        self._blueprints.append(f_rec)
                     else:
                         raise TypeError("Blueprint id invalid")
 
         # Generates / uses an id
         # Tries the name. If taken, adds numbers at the end
-        self.item_id = None
+        self.id = None
         if not item_id:
-            self.item_id = _generate_id(self._name)
+            self.id = _generate_id(self._name)
         elif directory.id_exists(item_id):
             raise RuntimeError("object with id '{}' already exists".format(item_id))
         else:
-            self.item_id = _generate_id(item_id)
-
-
-        # INTERNALS
+            self.id = _generate_id(item_id)
 
         # Used for events
-        events = ["name", "description", "recipes"]
+        events = ["name", "description", "blueprints", "pickup"]
         self.event = EventManager(self._name, events)
 
         # Add item to cache
@@ -407,6 +432,14 @@ class Item:
         else:
             return self._desc
 
+    @property
+    def blueprints(self) -> list:
+        res = self.event.dispatch_event("blueprints", self._desc)
+        if res:
+            return res
+        else:
+            return self._blueprints
+
     # EVENT REGISTERING
     def event(self, fn, event_name):
         """
@@ -421,7 +454,6 @@ class Item:
         # Register the event
         self.event.set_event_handler(event_name, fn)
         return fn
-
 
     @staticmethod
     def handle_id_or_object(item_or_id):
@@ -438,3 +470,10 @@ class Item:
                 return item
             else:
                 raise IdMissing("item {} does not exist".format(item_or_id))
+
+    # OVERRIDDEN METHODS
+    def __eq__(self, other):
+        if not isinstance(other, Item):
+            raise TypeError("expected Item, got {}".format(type(other)))
+
+        return self.id == other.id

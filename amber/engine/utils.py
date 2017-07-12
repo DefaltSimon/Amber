@@ -1,5 +1,4 @@
 # coding=utf-8
-
 class Singleton(type):
     _instances = {}
 
