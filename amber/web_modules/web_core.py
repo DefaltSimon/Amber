@@ -6,11 +6,11 @@ import os
 
 from flask import Flask, render_template_string, send_from_directory
 from amber.web_modules.sockets import Socket
-from amber.web_modules.utils import threaded
+from amber.web_modules.web_utils import threaded
 
 
 MODULE_DIR = os.path.dirname(__file__)
-FRONTEND_DIR = os.path.join(MODULE_DIR, "frontend")
+FRONTEND_DIR = os.path.join(MODULE_DIR, "..", "frontend")
 
 with open(os.path.join(FRONTEND_DIR, "index.html"), "r") as file:
     MAIN_TEMPLATE = file.read()
@@ -22,10 +22,11 @@ GAME_NAME = "testing"
 
 app = Flask(__name__)
 loop = asyncio.get_event_loop()
-socket = Socket(loop, HOST, SOCKET_PORT)
+# socket = Socket(loop, HOST, SOCKET_PORT)
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
+
 
 @app.route("/")
 def main_page():
@@ -33,20 +34,22 @@ def main_page():
     return temp
 
 
-@app.route("/assets/<path:rest>")
-def simplify(rest):
-    lpath, filename = str(rest).rsplit("/", maxsplit=1)
-    return send_from_directory(os.path.join("frontend", "assets", lpath), filename)
+@app.route("/assets/<path:url>")
+def simplify(url):
+    l_path, filename = str(url).rsplit("/", maxsplit=1)
+    return send_from_directory(os.path.join("frontend", "assets", l_path), filename)
+
 
 @threaded
 def _run_flask():
     app.run(debug=False, host=HOST, port=FLASK_PORT)
 
 
-def run(open_browser=True):
-    log.info("Starting...")
+def run_web(amber_inst, open_browser=True):
+    log.info("Starting web module...")
     try:
         _run_flask()
+        socket = Socket(amber_inst, loop, HOST, SOCKET_PORT)
 
         if open_browser:
             page_url = "http://{}:{}".format(HOST, FLASK_PORT)

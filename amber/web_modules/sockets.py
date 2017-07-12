@@ -8,62 +8,41 @@ try:
 except ImportError:
     from json import dumps, loads
 
-from .utils import Status
+from .handler import SocketHandler
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
-class ResponseParser:
-    def __init__(self, socket):
-        self.socket = socket
-
-    async def reply(self, status, data, **kwargs):
-        payload = {
-            "status": status,
-            "data": data,
-        }
-        payload = {**payload, **kwargs}
-        await self.socket.send(payload)
-
-
-    async def handle(self, typ_, additional, req_id, data):
-        log.info("Browser connected!")
-
-        if typ_ == "event":
-            pass
-        elif typ_ == "action":
-            pass
-
-        # Todo implement
-        dt = {
-            "sample": "ayy"
-        }
-
-        await self.reply(Status.OK, dt, req_id=req_id)
-
 
 class Socket:
-    def __init__(self, loop: asyncio.AbstractEventLoop, host, port):
+    def __init__(self, amber, loop: asyncio.AbstractEventLoop, host, port):
         self.loop = loop
+        self.amber = amber
+
         assert isinstance(self.loop, asyncio.AbstractEventLoop)
 
         self.host = host
         self.port = port
 
+        self.connected_once = False
+
         self.s_cor = websockets.serve(self.parse_socket, host, port)
         self.socket = None
-        self.parser = ResponseParser(self)
 
-    async def start(self):
+        self.sockets = []
+
+    async def start(self, amber):
         self.loop.create_task(self.s_cor)
         log.info("Websocket ready")
 
-    async def send(self, payload):
-        payload = dumps(payload)
-        await self.socket.send(payload)
-
     async def parse_socket(self, socket, path):
-        self.socket = socket
+        parser = SocketHandler(self.amber, socket)
+
+        self.sockets.append(socket)
+
+        if self.connected_once:
+            log.warning("Websocket was already connected once, received another one")
+        self.connected_once = True
 
         while True:
             resp = await socket.recv()
@@ -71,7 +50,8 @@ class Socket:
                 resp = loads(resp)
             except:
                 log.critical("Invalid JSON response: {}".format(resp))
-                raise
+                # raise
+                continue
 
             assert isinstance(resp, dict)
 
@@ -91,6 +71,4 @@ class Socket:
             data = resp.get("data")
             req_id = resp.get("req_id")
 
-
-            await self.parser.handle(typ_, add, req_id, data)
-
+            await parser.handle(typ_, add, req_id, data)
