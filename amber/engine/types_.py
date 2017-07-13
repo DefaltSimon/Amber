@@ -101,17 +101,11 @@ class Description:
         :return: None
         """
         for q_room in self._q_rooms:
-            room = directory.obj_collector.find_room_by_id(q_room)
-            if not room:
-                raise IdMissing("{} is not a room".format(q_room))
-
+            room = Room.handle_id_or_object(q_room)
             self.rooms.append(room)
 
         for q_item in self._q_items:
-            item = directory.obj_collector.find_item_by_id(q_item)
-            if not item:
-                raise IdMissing("{} is not an item".format(q_item))
-
+            item = Item.handle_id_or_object(q_item)
             self.items.append(item)
 
 # TODO music
@@ -119,7 +113,7 @@ class Description:
 
 class Room:
     def __init__(self, name: str, description: Union[str, list] = None, initial_msg: str = None, locations: list = None,
-                 image=None, sound=None, room_id=None):
+                 image=None, sound=None, room_id: str = None, starting_room: bool = False):
         """
         Creates a room that the player "can" step in
         :param name: Name of the room, displayed at the top
@@ -129,6 +123,7 @@ class Room:
         :param image: Path to the image that should be displayed in this room
         :param sound: Path to the sound that should be played here
         :param room_id: Item id that you assign (OPTIONAL). Defaults to the name if available, otherwise numbers (room_name1, room_name2, ...) are added
+        :param starting_room: bool indicating if this room should be the starting one
         """
         self._name = name
         self._desc = Description(description)
@@ -163,6 +158,12 @@ class Room:
         events = ["enter", "leave", "description", "message", "name", "locations", "image", "sound"]
         self._event_mgr = EventManager(self._name, events)
 
+        if starting_room:
+            if not directory.is_in_world("amber"):
+                raise AmberException("amber was not instantiated!")
+
+            directory.world.get("amber").set_starting_point(self)
+
         # Add item to cache
         directory.obj_collector.add_room(self)
 
@@ -184,7 +185,7 @@ class Room:
             return self._desc
 
     @property
-    def initial_message(self) -> str:
+    def message(self) -> str:
         res = self._event_mgr.dispatch_event("message", self._msg)
         if res:
             return res
@@ -252,6 +253,7 @@ class Room:
             else:
                 raise IdMissing("room {} does not exist".format(room_or_id))
 
+    # noinspection PyProtectedMember
     def _finalize_loading(self):
         log.debug("Finalizing {}".format(self._name))
         for c, room_i in enumerate(self._locations.copy()):
@@ -263,6 +265,9 @@ class Room:
                 continue
 
             self._locations[c] = room
+
+        if isinstance(self._desc, Description):
+            self._desc._finalize_loading()
 
     def add_location(self, location):
         """
@@ -358,10 +363,6 @@ class Blueprint:
         item1 = Item.handle_id_or_object(item1)
         item2 = Item.handle_id_or_object(item2)
 
-        print(item1.name)
-        print(item2.name)
-        print("-----------")
-
         ls = [self.item1, self.item2]
         return item1 in ls and item2 in ls
 
@@ -441,19 +442,21 @@ class Item:
             return self._blueprints
 
     # EVENT REGISTERING
-    def event(self, fn, event_name):
+    def event(self, event_name):
         """
         Registers an event handler via decorators
-        :param fn: Provided automatically by the decorator
         :param event_name: Your first parameter: name of the event (by property names)
         :return: function for the decorator to use
         """
-        if not callable(fn):
-            raise TypeError("not a function")
+        def real_dec(fn):
+            if not callable(fn):
+                raise TypeError("not a function")
 
-        # Register the event
-        self.event.set_event_handler(event_name, fn)
-        return fn
+            # Register the event
+            self.event.set_event_handler(event_name, fn)
+            return fn
+
+        return real_dec
 
     @staticmethod
     def handle_id_or_object(item_or_id):

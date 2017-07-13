@@ -6,7 +6,7 @@ from typing import Union
 from . import directory
 from .types_ import Room, Item, Blueprint
 from .utils import Singleton
-from .exceptions import NotAllowed, IdMissing, NoSuchBlueprint
+from .exceptions import NotAllowed, IdMissing, NoSuchBlueprint, AmberException
 
 # Flask webmodule import
 from ..web_modules.web_core import run_web
@@ -40,16 +40,18 @@ class MessageDefaults:
 
 
 class Amber(metaclass=Singleton):
-    def __init__(self, name, description:str = None, version:str = None):
+    def __init__(self, name, description : str = None, version : str = None, author : str = None):
         """
         The main class of the Amber engine.
         :param name: Game name
         :param description: Game description
         :param version: Version of your game
+        :param author: You, the author
         """
         self.name = name
         self.description = description
         self.version = version
+        self.author = author
 
         self.current_room = None
         self.previous_room = None
@@ -149,5 +151,10 @@ class Amber(metaclass=Singleton):
         :return: None
         """
         self._late_load()
+
+        if not self.starting_room:
+            raise AmberException("no starting room")
+
+        self.current_room = self.starting_room
 
         run_web(self, open_browser)
