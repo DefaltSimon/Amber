@@ -1,6 +1,7 @@
 # coding=utf-8
 import logging
 import websockets
+from websockets import exceptions
 import asyncio
 
 try:
@@ -45,7 +46,12 @@ class Socket:
         self.connected_once = True
 
         while True:
-            resp = await socket.recv()
+            try:
+                resp = await socket.recv()
+            except exceptions.ConnectionClosed:
+                log.info("Client disconnected")
+                return
+
             try:
                 resp = loads(resp)
             except:
