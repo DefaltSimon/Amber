@@ -15,9 +15,11 @@
 /* Utilities */
 @import 'utilities';
 /* Grid */
-@import 'layout/_grid';
-@import 'layout/_header';
-@import 'layout/_footer';
-@import "layout/_body";
+@import 'layout/grid';
+@import 'layout/header';
+@import 'layout/footer';
+@import "layout/body";
+@import "layout/intro";
+@import "layout/loading";
 /* Components */
 @import 'components';
