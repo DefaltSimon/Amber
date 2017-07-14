@@ -297,6 +297,23 @@ class Room:
 
         amber.starting_room = self
 
+    # DEPRECATED
+    def enter(self) -> tuple:
+        """
+        Must return a tuple:
+
+        1st item: bool indicating if the pickup should be made
+        2nd item: str as a message to display
+
+        :return: tuple
+        """
+        res = self._event_mgr.dispatch_event("enter", self)
+        if not res:
+            return True, ""
+        else:
+            return res
+
+    # DEPRECATED
     @property
     def can_enter(self) -> bool:
         """
@@ -310,6 +327,7 @@ class Room:
 
         return res
 
+    # DEPRECATED
     @property
     def can_leave(self) -> bool:
         """
@@ -410,7 +428,7 @@ class Item:
             self.id = _generate_id(item_id)
 
         # Used for events
-        events = ["name", "description", "blueprints", "pickup"]
+        events = ["name", "description", "blueprints", "pickup", "use"]
         self.event = EventManager(self._name, events)
 
         # Add item to cache
@@ -440,6 +458,36 @@ class Item:
             return res
         else:
             return self._blueprints
+
+    def pickup(self) -> tuple:
+        """
+        Must return a tuple:
+
+        1st item: bool indicating if the pickup should be made OR a Response instance
+        2nd item: str as a message to display
+
+        :return: tuple
+        """
+        res = self.event.dispatch_event("pickup", self)
+        if not res:
+            return True, ""
+        else:
+            return res
+
+    def use(self):
+        """
+        Must return a tuple:
+
+        1st item: bool indicating if the pickup should be made OR a Response instance
+        2nd item: str as a message to display
+
+        :return: tuple
+        """
+        res = self.event.dispatch_event("use", self)
+        if not res:
+            return True, self.description
+        else:
+            return res
 
     # EVENT REGISTERING
     def event(self, event_name):
@@ -477,6 +525,21 @@ class Item:
     # OVERRIDDEN METHODS
     def __eq__(self, other):
         if not isinstance(other, Item):
-            raise TypeError("expected Item, got {}".format(type(other)))
+            return False
 
         return self.id == other.id
+
+
+class IntroScreen:
+    __slots__ = (
+        "title", "image"
+    )
+
+    def __init__(self, title: str, image: str = None):
+        self.title = str(title)
+        self.image = str(image)
+
+        if directory.is_in_world("intro"):
+            log.warning("IntroScreen already exists, overwriting")
+
+        directory.add_to_world(self, "intro")

@@ -40,13 +40,14 @@ class MessageDefaults:
 
 
 class Amber(metaclass=Singleton):
-    def __init__(self, name, description : str = None, version : str = None, author : str = None):
+    def __init__(self, name, description : str = None, version : str = None, author : str = None, defaults : MessageDefaults = None):
         """
         The main class of the Amber engine.
         :param name: Game name
         :param description: Game description
         :param version: Version of your game
         :param author: You, the author
+        :param defaults: MessageDefaults instance
         """
         self.name = name
         self.description = description
@@ -61,6 +62,8 @@ class Amber(metaclass=Singleton):
 
         # Internals
         self._start_time = time.time()
+
+        self.defaults = defaults or MessageDefaults()
 
         # Add instance ref to global directory
         if not directory.is_in_world("amber"):
@@ -102,11 +105,9 @@ class Amber(metaclass=Singleton):
         if not isinstance(room, (Room, str)):
             raise TypeError("room: expected Room/str, got {}".format(type(room)))
 
-        # If
-        if not self.current_room.can_leave:
-            raise NotAllowed("you are not allowed to leave this room")
-        if not room.can_enter:
-            raise NotAllowed("you are not allowed to enter this room")
+        st, msg = self.current_room.enter()
+        if not st:
+            raise NotAllowed(msg)
 
         # Main part
         self.previous_room = self.current_room
@@ -114,8 +115,7 @@ class Amber(metaclass=Singleton):
 
         return self.current_room
 
-    @staticmethod
-    def combine(item1: Union[str, Item], item2: Union[str, Item]):
+    def combine(self, item1: Union[str, Item], item2: Union[str, Item]):
         """
         Combines two items together
         :param item1: First item to combine
@@ -137,7 +137,7 @@ class Amber(metaclass=Singleton):
                 break
 
         if not bp:
-            raise NoSuchBlueprint("no blueprint matching {} and {}".format(item1.name, item2.name))
+            raise NoSuchBlueprint(self.defaults.failed_combine)
 
         # Return new item
         return bp.result
