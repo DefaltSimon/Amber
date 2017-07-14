@@ -6,6 +6,8 @@ import inspect
 
 from .web_utils import Status, get_engine_version
 from ..engine.types_ import Room, Description, Item, Blueprint
+from ..engine.exceptions import NotAllowed, AmberException, NoSuchBlueprint, IdMissing
+from ..engine import response, directory
 
 log = logging.getLogger(__name__)
 
@@ -121,16 +123,13 @@ def extract_from_blueprint(bp: Blueprint) -> dict:
 
 def dictify(obj):
     if isinstance(obj, Room):
-        print(obj.name)
         tree = extract_from_room(obj)
         for k, el in tree.items():
-            print("checking {}".format(k))
             tree[k] = dictify(el)
 
         return tree
 
     elif isinstance(obj, Item):
-        print("is item: {}".format(obj.name))
         tree = extract_from_item(obj)
         for k, el in tree.items():
             tree[k] = dictify(el)
@@ -152,18 +151,16 @@ def dictify(obj):
         return tree
 
     elif isinstance(obj, (str, int, float)):
-        print("is str: {}".format(obj))
         return obj
 
     elif isinstance(obj, dict):
-        return dictify(obj)
+        return {dictify(k): dictify(v) for k, v in obj.items()}
 
     elif isinstance(obj, list):
-        print("is list: {}".format(obj))
         return [dictify(a) for a in obj]
 
     else:
-        return obj
+        return obj.__dict__
 
 
 # EVENT HANDLERS
@@ -172,7 +169,7 @@ def dictify(obj):
 @event.on("handshake")
 def handshake(data):
     ui_version = data.get("uiVersion")
-    log.info("Client connected with version {}".format(ui_version))
+    log.info("Client connected with uiVersion {}".format(ui_version))
 
     payload = {
         "engineVersion": get_engine_version(),
@@ -181,33 +178,110 @@ def handshake(data):
         "description": amber.description,
     }
 
-    return Status.OK, dict(data=payload)
+    return Status.OK, payload
 
-
+# TODO test
 @action.on("get-inventory")
 def get_inventory(data):
-    return Status.OK, dict(data=amber.inventory)
+    return Status.OK, dictify(amber.inventory)
 
+# TODO test
+@action.on("get-intro")
+def get_intro(data):
+    intro = directory.world.get("intro")
+    if not intro:
+        return Status.MISSING, None
 
-@action.on("get-room-info")
+    pl = {
+        "title": intro.title,
+        "image": intro.image,
+        # TODO sound
+    }
+
+    return Status.OK, pl
+
+# TODO test
+@action.on("get-room")
 def get_room_info(data):
     cr = amber.current_room
 
-    return Status.OK, dict(data=extract_from_room(cr))
+    return Status.OK, extract_from_room(cr)
 
+# TODO test
+@action.on("get-room-desc")
+def get_room_desc(data):
+    desc = amber.current_room.description
 
+    return Status.OK, dictify(desc)
+
+# TODO test
 @action.on("get-locations")
 def get_locations(data):
-    log.info("getting locations")
-    return Status.OK, dict(data=dictify(amber.current_room.locations))
+    return Status.OK, dictify(amber.current_room.locations)
 
-
+# TODO test
 @action.on("move-to")
-def move_to(data):
-    room = Room.handle_id_or_object(data.get("room"))
-    print(room)
-    new = amber.walk_to(room)
-    return Status.OK, dict(data=extract_from_room(new))
+def move_to(room_id):
+    room = Room.handle_id_or_object(room_id)
+
+    try:
+        new = amber.walk_to(room)
+    except NotAllowed as e:
+        return Status.FORBIDDEN, {"message": e}
+
+    return Status.OK, extract_from_room(new)
+
+# TODO test
+@action.on("combine-items")
+def combine_items(item_list):
+    item1, item2 = item_list.get("items")
+    item1, item2 = Item.handle_id_or_object(item1), Item.handle_id_or_object(item2)
+
+    try:
+        result = amber.combine(item1, item2)
+    except NoSuchBlueprint as e:
+        return Status.FORBIDDEN, {"message": e}
+
+    return Status.OK, dictify(result)
+
+# TODO test
+@action.on("use-item")
+def use_item(item_id):
+    item = Item.handle_id_or_object(item_id)
+
+    status, msg = item.use()
+
+    if status is False:
+        return Status.FORBIDDEN, {"message": msg}
+    else:
+        if isinstance(status, response.Response):
+            return Status.OK, {**dictify(status.to_dict()), **{"message": msg}}
+        else:
+            return Status.OK, {"message": msg}
+
+# TODO test
+@action.on("desc-use")
+def use_from_description(obj):
+    try:
+        obj = Item.handle_id_or_object(obj)
+
+        status, msg = obj.pickup()
+        if status is False:
+            return Status.FORBIDDEN, dict(data={"message": msg})
+        else:
+            if isinstance(status, response.Response):
+                return Status.OK, {**dictify(status.to_dict()), **{"message": msg}}
+            else:
+                return Status.OK, {"message": msg}
+
+    # Is a room, not an item
+    except IdMissing:
+        obj = Room.handle_id_or_object(obj)
+
+        room = amber.walk_to(obj)
+        status = response.Response.move_to_room(room)
+        return Status.OK, {**{"message": room.message}, **dictify(status.to_dict())}
+
 
 
 class SocketHandler:

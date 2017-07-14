@@ -3,6 +3,7 @@ import asyncio
 import webbrowser
 import logging
 import os
+import sys
 import time
 from random import randint
 
@@ -13,6 +14,8 @@ from amber.web_modules.web_utils import threaded
 
 MODULE_DIR = os.path.dirname(__file__)
 FRONTEND_DIR = os.path.join(MODULE_DIR, "..", "frontend")
+
+GAME_DIR = os.path.dirname(sys.argv[0])
 
 with open(os.path.join(FRONTEND_DIR, "index.html"), "r") as file:
     MAIN_TEMPLATE = file.read()
@@ -36,10 +39,14 @@ def main_page():
     return render_template_string(MAIN_TEMPLATE, host=HOST, port=SOCKET_PORT)
 
 
-@app.route("/assets/<path:url>")
-def simplify(url):
-    l_path, filename = str(url).rsplit("/", maxsplit=1)
-    return send_from_directory(os.path.join(FRONTEND_DIR, "assets", l_path), filename)
+@app.route("/<path:url>")
+def simplify(url: str):
+    if url.startswith(("assets/", "/assets")):
+        l_path, filename = os.path.split(url)
+        return send_from_directory(os.path.join(FRONTEND_DIR, l_path), filename)
+    else:
+        f_path, fn = os.path.split(os.path.join(GAME_DIR, url))
+        return send_from_directory(f_path, fn)
 
 
 @threaded
