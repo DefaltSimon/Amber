@@ -1,0 +1,67 @@
+.intro {
+    color: darken($color-grey, 30%);
+    font-family: $font-primary, $font-secondary, $font-tertiary, Arial;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    height: 100%;
+    
+    background: darken($color-white, 20%);
+    
+    &--title {
+        color: $color-black;
+        font-size: 2em;
+        font-weight: 700;
+    }
+    
+    &--img {
+        max-width: 100%;
+        height: auto;
+        text-align: center;
+        
+        &__container {
+            min-width: 0;
+            text-align: center;
+        }
+    }
+    
+    &--lower {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-top: 30px;
+    }
+    
+    &--btn {
+        padding: 5px 8px;
+        align-items: center;
+        text-align: center;
+        font-weight: 700;
+        font-size: 1.5em;
+        letter-spacing: 2px;
+        cursor: pointer;
+        
+        
+        border: 3px solid transparentize($color-grey, 0.7);
+        border-radius: 3px;
+        
+        color: darken($color-orange, 50%);
+        background-color: transparentize($color-black, 0.9);
+        
+        @include transition();
+        
+        &:hover {
+            border: 3px solid transparentize($color-grey, 0.5);
+            background-color: transparentize($color-black, 0.7);
+        }
+    }
+    
+    &--msg {
+        color: transparentize($color-black, 0.6);
+        font-size: 1.3em;
+        font-weight: 500;
+    }
+}

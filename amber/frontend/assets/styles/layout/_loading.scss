@@ -1,0 +1,19 @@
+.loading {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    
+    
+    font-family: $font-primary, Arial;
+    font-size: 1.4em;
+    font-weight: 700;
+    
+    &--title {
+        text-align: center;
+    }
+    
+    &--wrapper {
+        min-width: 20%;
+        height: 100px;
+    }
+}

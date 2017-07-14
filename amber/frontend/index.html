@@ -36,48 +36,81 @@
         </div>
     </header>
 
+    <section class="game-section active loading" id="section-loading">
+        <div class="loading--wrapper">
+            <!--<h1 class="loading--title">Loading...</h1>-->
+            <!-- Credits to http://tobiasahlin.com/spinkit/ -->
+            <div class="spinner">
+                <div class="bounce1"></div>
+                <div class="bounce2"></div>
+                <div class="bounce3"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="game-section nodisplay" id="section-intro">
+        <div class="intro container-fluid flex">
+            <div class="flex flex--column flex--center">
+                <h1 class="intro--title pb20"></h1>
+                <span class="intro--img__container">
+                    <img class="intro--img">
+                </span>
+            </div>
+
+            <div class="intro--lower mt60">
+                <span class="flex flex--center">
+                    <button type="button" class="intro--btn">PLAY</button>
+                </span>
+                <div class="intro--msg mt20"></div>
+            </div>
+        </div>
+
+    </section>
+
     <!-- Main -->
-    <div class="body container-fluid flex">
-        <div class="body--inv flex flex--column">
+    <section class="game-section nodisplay" id="section-game">
+        <div class="body container-fluid flex">
+            <div class="body--inv flex flex--column">
 
-            <div class="body--inv__title pb20 flex">
-                <img src="assets/images/backpack.svg" alt="Backpack Item Icon" class="img__svg">
-                <span>Inventory</span>
+                <div class="body--inv__title pb20 flex">
+                    <img src="assets/images/backpack.svg" alt="Backpack Item Icon" class="img__svg">
+                    <span>Inventory</span>
+                </div>
+                <ul class="body--inv__list">
+                    <li>Spoon</li>
+                    <li>Cigarette</li>
+                    <li>Food</li>
+                    <li>Shotgun</li>
+                </ul>
             </div>
-            <ul class="body--inv__list">
-                <li>Spoon</li>
-                <li>Cigarette</li>
-                <li>Food</li>
-                <li>Shotgun</li>
-            </ul>
-        </div>
-        <div class="body--main room">
-            <button type="button" id="testbtn">Click me!</button>
-            <!-- auto-generated content -->
+            <div class="body--main room">
+                <button type="button" id="testbtn">Click me!</button>
+                <!-- auto-generated content -->
 
-            <div class="room--name">Outside</div>
-            <img src="assets/images/floor3.png" alt="" class="room--image">
-            <div class="room--topdetails">You take the shotgun. However, it is not loaded.</div>
-            <div class="room--details">
-                You're standing in the middle of a hallway. At the end of the hallway you can see a <span class="room--action">Door</span>.
-                There's an elevator connecting this floor with the upper one. Next to it there is a window. You can see far across the city.
+                <div class="room--name">Outside</div>
+                <img src="assets/images/floor3.png" alt="" class="room--image">
+                <div class="room--topdetails">You take the shotgun. However, it is not loaded.</div>
+                <div class="room--details">
+                    You're standing in the middle of a hallway. At the end of the hallway you can see a <span class="room--action">Door</span>.
+                    There's an elevator connecting this floor with the upper one. Next to it there is a window. You can see far across the city.
+                </div>
+
             </div>
+            <div class="body--locations flex flex--column">
+                <div class="body--locations__title pb20 flex">
+                    <img src="assets/images/map.svg" alt="Map Icon" class="img__svg right">
+                    <span>Places</span>
+                </div>
 
-        </div>
-        <div class="body--locations flex flex--column">
-            <div class="body--locations__title pb20 flex">
-                <img src="assets/images/map.svg" alt="Map Icon" class="img__svg right">
-                <span>Places</span>
+                <ul class="body--locations__list">
+                    <li>Garden</li>
+                    <li>Living Room</li>
+                    <li>Street</li>
+                </ul>
+
             </div>
-
-            <ul class="body--locations__list">
-                <li>Garden</li>
-                <li>Living Room</li>
-                <li>Street</li>
-            </ul>
-
         </div>
-    </div>
+    </section>
 
     <!-- Footer
     <footer class="footer">
@@ -92,7 +125,7 @@
     const port = "{{ port }}";
 </script>
 <!--<script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script> -->
-<script src="assets/scripts/amber.js"></script>
+<script src="assets/scripts/keyhandler.js"></script>
 <script src="assets/scripts/main.js"></script>
 </body>
 </html>

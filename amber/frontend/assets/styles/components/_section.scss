@@ -1,0 +1,21 @@
+main .game-section {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    
+    opacity: 0;
+    @include transition(opacity .9s ease-in-out);
+    display: flex;
+    
+    
+    &.nodisplay {
+        display: none;
+        pointer-events: none;
+    }
+    
+    &.active {
+        opacity: 1;
+        @include transition(opacity .05s ease);
+    }
+}
