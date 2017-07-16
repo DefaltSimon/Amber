@@ -7,7 +7,7 @@ import sys
 import time
 from random import randint
 
-from flask import Flask, render_template_string, send_from_directory
+from flask import Flask, render_template_string, send_from_directory, request
 from amber.web_modules.sockets import Socket
 from amber.web_modules.web_utils import threaded
 
@@ -37,6 +37,21 @@ logging.getLogger("werkzeug").setLevel(logging.WARNING)
 @app.route("/")
 def main_page():
     return render_template_string(MAIN_TEMPLATE, host=HOST, port=SOCKET_PORT)
+
+
+@app.after_request
+def add_header(r):
+    """
+    Removes caching
+    """
+    if request.path != "/":
+        return r
+
+    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    r.headers["Pragma"] = "no-cache"
+    r.headers["Expires"] = "0"
+    r.headers['Cache-Control'] = 'public, max-age=0'
+    return r
 
 
 @app.route("/<path:url>")
