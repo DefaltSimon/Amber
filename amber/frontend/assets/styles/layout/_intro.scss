@@ -59,9 +59,43 @@
         }
     }
     
+    &--escape {
+        display: block;
+        margin: 0 auto;
+        padding: 1px 5px;
+        
+        &__container {
+            display: inline-block;
+            vertical-align: middle;
+        }
+    }
+    
+    @keyframes esc {
+        from {bottom: -30px; opacity: 0;}
+        to {bottom: 0; opacity: 1;}
+    }
+    
+    @keyframes wiggle {
+        0% {bottom: 0; opacity: 1}
+        5% {bottom: 5px; opacity: 0.85}
+        10% {bottom: 0; opacity: 1}
+        100% {bottom: 0; opacity: 1}
+    }
+    
     &--msg {
+        position: relative;
+        bottom: -30px;
+        opacity: 0;
+        
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        
         color: transparentize($color-black, 0.6);
-        font-size: 1.3em;
+        font-size: 1.4em;
         font-weight: 500;
+        
+        animation: esc 1.5s 1.5s 1 forwards, wiggle 13s 4.5s infinite;
+        animation-timing-function: cubic-bezier(0.28, 0.79, 0.4, 1.02);
     }
 }

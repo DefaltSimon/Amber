@@ -3,11 +3,90 @@ main .game-section {
     top: 0;
     height: 100%;
     width: 100%;
+    z-index: 10;
     
     opacity: 0;
     @include transition(opacity .9s ease-in-out);
     display: flex;
     
+    
+    &.nodisplay {
+        //display: none;
+        visibility: hidden;
+        pointer-events: none;
+    }
+    
+    &.active {
+        opacity: 1;
+        visibility: visible;
+        @include transition(opacity .05s ease);
+    }
+}
+
+main .game-section#section-menu {
+    @include transition(.5s ease-in-out);
+    position: relative;
+    left: -10px;
+    
+    
+    &.active {
+        left: 0;
+        @include transition(.7s ease);
+    }
+}
+
+main .game-section#section-loading {
+    @include transition(opacity .3s)
+}
+
+main .footer {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 150;
+    
+    opacity: 0;
+    @include transition(opacity .6s ease);
+    
+    display: flex;
+    
+    &--about {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    &--box {
+        border: 2px solid $color-grey-blue;
+        padding: 35px 15px;
+        background-color: #cacaca;
+    }
+    
+    h2 {
+        text-align: center;
+        font-size: 1.3em;
+    }
+    
+    h3 {
+        font-weight: 700;
+        font-size: 1.1em;
+    }
+    
+    &--icons {
+        
+        list-style: circle;
+        
+        a {
+            color: darken($color-orange-deep, 20%);
+            @include transition();
+            
+            &:hover {
+                color: darken($color-orange-deep, 25%);
+            }
+        }
+    }
     
     &.nodisplay {
         display: none;

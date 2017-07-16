@@ -1,0 +1,46 @@
+@keyframes slideIn {
+    0% {left: -20px; opacity: 0;}
+    45% {opacity: 1;}
+    100% {left: 0; opacity: 1;}
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    
+    position: relative;
+    left: -10px;
+    
+    animation: slideIn .45s cubic-bezier(0.525, 1.105, 0.705, 0.985) forwards;
+    
+    &--list {
+        display: flex;
+        flex-direction: column;
+        width: 200px;
+        
+        span {
+            padding: 10px;
+            
+            cursor: pointer;
+            color: $color-black-variant;
+            font-weight: 700;
+            
+            position: relative;
+            left: 0;
+            @include transition(.4s cubic-bezier(0.525, 1.105, 0.705, 0.985));
+            
+            &:hover {
+                left: 5px;
+                color: lighten($color-black-variant, 15%);
+                
+                @include transition(.1s cubic-bezier(0.525, 1.105, 0.705, 0.985));
+            }
+        }
+    }
+    
+    &--panels {
+        width: auto;
+    }
+    
+    
+}

@@ -38,12 +38,11 @@
 
     <section class="game-section active loading" id="section-loading">
         <div class="loading--wrapper">
-            <!--<h1 class="loading--title">Loading...</h1>-->
-            <!-- Credits to http://tobiasahlin.com/spinkit/ -->
-            <div class="spinner">
-                <div class="bounce1"></div>
-                <div class="bounce2"></div>
-                <div class="bounce3"></div>
+            <div class="loader">
+                <div class="block1"></div>
+                <div class="block2"></div>
+                <div class="block3"></div>
+                <div class="block4"></div>
             </div>
         </div>
     </section>
@@ -59,16 +58,32 @@
 
             <div class="intro--lower mt60">
                 <span class="flex flex--center">
-                    <button type="button" class="intro--btn">PLAY</button>
+                    <button type="button" class="intro--btn" onclick="fadeToGame()">PLAY</button>
                 </span>
-                <div class="intro--msg mt20">
-                    Press <b>ESCAPE</b> for Menu.
+                <div class="intro--msg mt30">
+                    <span>Press</span>
+                    <span class="intro--escape__container"><img class="intro--escape" src="assets/images/esc.png" alt="ESCAPE"></span>
+                    <span> for menu</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Main -->
+    <section class="game-section nodisplay" id="section-menu">
+        <div class="menu">
+            <div class="menu--list">
+                <span class="mb30" onclick="sectionFade(sections['section-menu'])">Resume</span>
+                <span>Load Game</span>
+                <span class="mb30">Save Game</span>
+                <span class="mb30">Options</span>
+                <span>Exit</span>
+            </div>
+            <div class="menu--panels">
+
+            </div>
+        </div>
+    </section>
+
     <section class="game-section nodisplay" id="section-game">
         <div class="body container-fluid flex">
             <div class="body--inv flex flex--column">
@@ -82,8 +97,8 @@
                 </ul>
             </div>
             <div class="body--main room">
-                <div class="room--name">Outside</div>
-                <img src="assets/images/floor3.png" alt="" class="room--image">
+                <div class="room--name"></div>
+                <img src="" alt="" class="room--image">
                 <div class="room--topdetails"></div>
                 <div class="room--description">
 
@@ -104,10 +119,23 @@
         </div>
     </section>
 
-    <!-- Footer
-    <footer class="footer">
-        <div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
-    </footer> -->
+    <!-- Footer -->
+    <section class="footer nodisplay" id="section-footer">
+        <div class="body container-fluid footer--about">
+            <div class="footer--box">
+                <h2 class="mb30">About</h2>
+
+                <div>
+                    <h3 class="mb20">Icons</h3>
+                    <ul class="footer--icons">
+                        <li>Made by <a href="http://www.freepik.com" title="Freepik">Freepik</a>, licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></li>
+                        <li>ESC key made by <a href="http://addictedtocoffee.de/">Oliver Twardowski</a></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </section>
 
     <!-- End -->
 </main>
