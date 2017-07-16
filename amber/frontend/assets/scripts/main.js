@@ -243,15 +243,6 @@ socket.onopen = function () {
     console.log("Websocket connected");
     amber.sendHandshake();
 
-    setCallbackById("testbtn", function () {
-        amber.getLocations(function (status, data) {
-            // TODO implement properly
-            console.log("Locations received!");
-            console.log(data);
-        })
-    });
-
-
     // Gets intro and displays it
     amber.getIntro(function (status, data) {
         console.log("Setting intro");

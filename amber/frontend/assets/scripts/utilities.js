@@ -81,3 +81,13 @@ function assert(condition, message) {
         throw message; // Fallback
     }
 }
+
+function waitFor(cond, callback) {
+    if (!cond) {
+        setTimeout(waitFor(cond, callback), 150);
+    }
+    else {
+        callback()
+    }
+
+}
