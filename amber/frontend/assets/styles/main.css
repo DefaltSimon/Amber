@@ -1174,11 +1174,21 @@ text transform
     font-style: italic;
     font-weight: 500;
     font-size: 1em; }
-  .room--details {
+  .room--description {
     width: 80%;
     font-size: 1em;
     text-align: justify;
     color: #0d0d0d; }
+    .room--description__item {
+      color: #d53300;
+      cursor: pointer;
+      -webkit-transition: 200ms;
+      -moz-transition: 200ms;
+      -ms-transition: 200ms;
+      -o-transition: 200ms;
+      transition: 200ms; }
+      .room--description__item:hover {
+        color: #882100; }
   .room--action {
     color: #a22700;
     cursor: pointer;

@@ -24,12 +24,22 @@
         font-size: 1em;
     }
     
-    &--details {
+    &--description {
         width: 80%;
         font-size: 1em;
         text-align: justify;
         
         color: lighten($color-black, 5%);
+        
+        &__item {
+            color: darken($color-orange-deep, 15%);
+            cursor: pointer;
+            @include transition();
+            
+            &:hover {
+                color: darken($color-orange-deep, 30%);
+            }
+        }
     }
     
     /* other styles */

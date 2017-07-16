@@ -61,10 +61,11 @@
                 <span class="flex flex--center">
                     <button type="button" class="intro--btn">PLAY</button>
                 </span>
-                <div class="intro--msg mt20"></div>
+                <div class="intro--msg mt20">
+                    Press <b>ESCAPE</b> for Menu.
+                </div>
             </div>
         </div>
-
     </section>
 
     <!-- Main -->
@@ -77,22 +78,15 @@
                     <span>Inventory</span>
                 </div>
                 <ul class="body--inv__list">
-                    <li>Spoon</li>
-                    <li>Cigarette</li>
-                    <li>Food</li>
-                    <li>Shotgun</li>
+
                 </ul>
             </div>
             <div class="body--main room">
-                <button type="button" id="testbtn">Click me!</button>
-                <!-- auto-generated content -->
-
                 <div class="room--name">Outside</div>
                 <img src="assets/images/floor3.png" alt="" class="room--image">
-                <div class="room--topdetails">You take the shotgun. However, it is not loaded.</div>
-                <div class="room--details">
-                    You're standing in the middle of a hallway. At the end of the hallway you can see a <span class="room--action">Door</span>.
-                    There's an elevator connecting this floor with the upper one. Next to it there is a window. You can see far across the city.
+                <div class="room--topdetails"></div>
+                <div class="room--description">
+
                 </div>
 
             </div>
@@ -103,9 +97,7 @@
                 </div>
 
                 <ul class="body--locations__list">
-                    <li>Garden</li>
-                    <li>Living Room</li>
-                    <li>Street</li>
+
                 </ul>
 
             </div>
@@ -125,6 +117,7 @@
     const port = "{{ port }}";
 </script>
 <!--<script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script> -->
+<script src="assets/scripts/utilities.js"></script>
 <script src="assets/scripts/keyhandler.js"></script>
 <script src="assets/scripts/main.js"></script>
 </body>
