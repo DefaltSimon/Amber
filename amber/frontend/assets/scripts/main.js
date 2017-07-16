@@ -4,15 +4,15 @@ Amber Engine
 
  */
 
-// Utility functions
-function dumps(obj) {
-    return JSON.stringify(obj);
-}
-function loads(string) {
-    return JSON.parse(string);
-}
-
-
+// CONSTANTS
+const titleObj = findByClass("intro--title"),
+      imageObj = findByClass("intro--img"),
+      inventoryObj = findByClass("body--inv__list"),
+      locationsObj = findByClass("body--locations__list"),
+      roomNameObj = findByClass("room--name"),
+      roomImageObj = findByClass("room--image"),
+      roomMessageObj = findByClass("room--topdetails"),
+      roomDescriptionObj = findByClass("room--description");
 
 // Setup the websocket
 console.log("Connecting to " + host + ":" + port);
@@ -38,6 +38,8 @@ class AmberFrontend {
     }
 
     sendAction(action, data, callback) {
+        console.debug("Sending action: " + action);
+
         if (data === null) {
             data = {}
         }
@@ -77,7 +79,7 @@ class AmberFrontend {
     }
 
     getRoomInfo(cb) {
-        this.sendAction("get-room-info", null, cb)
+        this.sendAction("get-room", null, cb)
     }
 
     getLocations(cb) {
@@ -93,7 +95,11 @@ class AmberFrontend {
     }
 
     useItem(item_id, cb) {
-        this.sendAction("use", {item: item_id}, cb)
+        this.sendAction("use-item", {item: item_id}, cb)
+    }
+
+    useDescriptionItem (item_id, cb) {
+        this.sendAction("desc-use", {item: item_id}, cb)
     }
 
     // TODO implement other endpoints
@@ -117,19 +123,119 @@ socket.onmessage = function (evt) {
 
 };
 
-let buttons = {};
+function parseActionClass(action) {
+    let act = action.action;
+    let obj = action.obj;
 
-// Action setter
-function setCallbackById(id, cb) {
-    let item = document.getElementById(id);
-
-    if (item === null) {
-        console.error("No element with id " + id);
+    if (act === "add-to-inventory") {
+        addToInventory(obj);
     }
-    else {
-        buttons[id] = item;
-        item.onclick = cb;
-        console.debug("Callback registered for " + id);
+    else if (act === "move-to") {
+
+    }
+}
+
+// Useful functions
+function sendDescriptionUse(self, item_id) {
+    amber.useDescriptionItem(item_id, function (status, data) {
+        console.log("Description item used");
+
+        roomMessageObj.innerHTML = data.message;
+    })
+}
+
+function sendInventoryUse(self, item_id) {
+    amber.useItem(item_id, function (status, data) {
+        console.log("Inventory item used");
+
+        roomMessageObj.innerHTML = data.message;
+    })
+}
+
+function moveToRoom(room_id) {
+    amber.moveTo(room_id, function (status, data) {
+        if (status === "forbidden") {
+            roomMessageObj.innerHTML = data.message;
+        }
+        else {
+            // Assume status is OK
+            parseRoomAndSet(data);
+        }
+    });
+
+    amber.getLocations(function (status, data) {
+        console.log("Setting locations");
+
+        let locations = data.locations;
+        clearLocations();
+
+        for (let i = 0; i < locations.length; i++) {
+            addLocation(locations[i]);
+        }
+    })
+}
+
+function parseRoomAndSet(data) {
+    roomNameObj.innerHTML = data.name;
+
+    // Parses description
+    let desc = data.description.text;
+
+    let splits = desc.split(/({\w+\|\w+})/);
+    for (let i = 0; i < splits.length; i++) {
+        let str = splits[i];
+
+        if (str.startsWith("{") && str.endsWith("}")) {
+
+            // I know it's shit, thx
+            let it = str.split("|");
+            it = [it[0].replace("{", ""), it[1].replace("}", "")];
+
+            let item_type = it[0];
+            let item_id = it[1];
+
+            let item_name = null;
+
+            if (item_type === "room") {
+                item_name = data.description.rooms[item_id].name;
+            }
+            else if (item_type === "item") {
+                item_name = data.description.items[item_id].name;
+            }
+
+            assert(item_name !== null);
+
+            splits[i]= "<span class='room--description__item' item-id='" + item_id + "' onclick='sendDescriptionUse(this, this.getAttribute(\"item-id\"))'>" + item_name + "</span>";
+        }
+    }
+
+    roomDescriptionObj.innerHTML = splits.join("");
+    roomMessageObj.innerHTML = data.msg;
+
+    setImageSrc(roomImageObj, data.image);
+}
+
+function addToInventory(item) {
+    let el = document.createElement("li");
+    el.innerHTML = item.name;
+    el.setAttribute("item-id", item.id);
+    el.setAttribute("onclick", "sendInventoryUse(this, this.getAttribute(\"item-id\"))");
+
+    inventoryObj.appendChild(el);
+}
+
+function addLocation(loc) {
+    let el = document.createElement("li");
+    el.innerHTML = loc.name;
+    el.setAttribute("item-id", loc.id);
+    el.setAttribute("onclick", "moveToRoom(this.getAttribute(\"item-id\"))");
+
+    locationsObj.appendChild(el);
+}
+
+function clearLocations() {
+    while (locationsObj.lastChild) {
+        locationsObj.removeChild(locationsObj.lastChild);
     }
 }
 
@@ -153,14 +259,39 @@ socket.onopen = function () {
         let title = data.title;
         let image = data.image;
 
-        let titleObj = findByClass("intro--title");
-        let imageObj = findByClass("intro--img");
-
         titleObj.innerHTML = title;
         imageObj.setAttribute("src", image);
 
-        sectionFade(sections["section-loading"]);
-        sectionFade(sections["section-intro"]);
+        // Proceed to getting the first room data
+        amber.getRoomInfo(function (status, data) {
+            console.log("Setting initial room state");
+
+            parseRoomAndSet(data);
+
+            sectionFade(sections["section-loading"]);
+            sectionFade(sections["section-intro"]);
+        });
+
+        amber.getInventory(function (status, data) {
+            console.log("Setting inventory");
+
+            let items = data.inventory;
+
+            for (let i = 0; i < items.length; i++) {
+                addToInventory(items[i]);
+            }
+        });
+
+        amber.getLocations(function (status, data) {
+            console.log("Setting locations");
+
+            let locations = data.locations;
+
+            for (let i = 0; i < locations.length; i++) {
+                addLocation(locations[i]);
+            }
+        })
+
     })
 
 };
