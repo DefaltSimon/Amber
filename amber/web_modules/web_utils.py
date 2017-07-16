@@ -17,6 +17,7 @@ def get_engine_version():
     with open(os.path.join(MODULE_DIR, "__init__.py")) as file:
         return re.search(version_pattern, file.read()).groups()[0]
 
+
 class Status:
     OK = "ok"
     FORBIDDEN = "forbidden"
