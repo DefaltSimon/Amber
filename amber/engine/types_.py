@@ -9,6 +9,11 @@ from .events import EventManager
 
 log = logging.getLogger(__name__)
 
+def _get_amber():
+    if not directory.is_in_world("amber"):
+        raise RuntimeError("please instantiate Amber before creating Rooms/Items/etc..")
+
+    return directory.world["amber"]
 
 def _generate_id(preferred: str):
     """
@@ -187,9 +192,11 @@ class Room:
     @property
     def message(self) -> str:
         res = self._event_mgr.dispatch_event("message", self._msg)
-        if res:
+        if res is not None:
             return res
         else:
+            print("entered {}".format(self._entered))
+            print(self._msg)
             if self._entered:
                 return ""
             else:
@@ -309,7 +316,7 @@ class Room:
         """
         res = self._event_mgr.dispatch_event("enter", self)
         if not res:
-            return True, ""
+            return True, self.message
         else:
             return res
 
@@ -395,12 +402,12 @@ class Item:
         """
         Creates an Item.
         :param name: Name of the item
-        :param description: Its description, when used
+        :param description: Item description (must not be a Description object)
         :param blueprints: Blueprints, containing items that can be made from this one
         :param item_id: Item ID that you can assign (OPTIONAL, see Room initialization)
         """
         self._name = name
-        self._desc = Description(description)
+        self._desc = description
 
         self._blueprints = []
         # Parses recipes
@@ -429,7 +436,9 @@ class Item:
 
         # Used for events
         events = ["name", "description", "blueprints", "pickup", "use"]
-        self.event = EventManager(self._name, events)
+        self._event_mgr = EventManager(self._name, events)
+
+        self.amber = _get_amber()
 
         # Add item to cache
         directory.obj_collector.add_item(self)
@@ -437,7 +446,7 @@ class Item:
     # PROPERTIES
     @property
     def name(self) -> str:
-        res = self.event.dispatch_event("name", self._name)
+        res = self._event_mgr.dispatch_event("name", self._name)
         if res:
             return res
         else:
@@ -445,7 +454,7 @@ class Item:
 
     @property
     def description(self) -> Union[Description, str]:
-        res = self.event.dispatch_event("description", self._desc)
+        res = self._event_mgr.dispatch_event("description", self._desc)
         if res:
             return res
         else:
@@ -453,7 +462,7 @@ class Item:
 
     @property
     def blueprints(self) -> list:
-        res = self.event.dispatch_event("blueprints", self._desc)
+        res = self._event_mgr.dispatch_event("blueprints", self._desc)
         if res:
             return res
         else:
@@ -463,12 +472,12 @@ class Item:
         """
         Must return a tuple:
 
-        1st item: bool indicating if the pickup should be made OR a Response instance
+        1st item: bool indicating if the pickup should be made OR an Action instance
         2nd item: str as a message to display
 
         :return: tuple
         """
-        res = self.event.dispatch_event("pickup", self)
+        res = self._event_mgr.dispatch_event("pickup")
         if not res:
             return True, ""
         else:
@@ -478,12 +487,12 @@ class Item:
         """
         Must return a tuple:
 
-        1st item: bool indicating if the pickup should be made OR a Response instance
+        1st item: bool indicating if the pickup should be made OR an Action instance
         2nd item: str as a message to display
 
         :return: tuple
         """
-        res = self.event.dispatch_event("use", self)
+        res = self._event_mgr.dispatch_event("use", self)
         if not res:
             return True, self.description
         else:
@@ -501,7 +510,7 @@ class Item:
                 raise TypeError("not a function")
 
             # Register the event
-            self.event.set_event_handler(event_name, fn)
+            self._event_mgr.set_event_handler(event_name, fn)
             return fn
 
         return real_dec

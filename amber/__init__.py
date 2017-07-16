@@ -8,7 +8,7 @@ from amber.engine.core import Amber
 from amber.engine.exceptions import AmberException, IdMissing, EventMissing, NoSuchBlueprint, NotAllowed
 from amber.engine.types_ import Blueprint, Item, Room, Description, IntroScreen
 from amber.engine.events import EventManager
-from amber.engine.response import Response
+from amber.engine.action import Action
 
 from amber.web_modules.web_core import run_web, Socket, app
 

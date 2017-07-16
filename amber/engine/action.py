@@ -12,7 +12,7 @@ ADD_TO_INV = "add-to-inventory"
 MOVE_TO = "move-to"
 
 
-class Response:
+class Action:
     __slots__ = (
         "action", "message", "obj"
     )

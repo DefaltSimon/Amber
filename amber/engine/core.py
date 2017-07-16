@@ -129,7 +129,6 @@ class Amber(metaclass=Singleton):
         # Find matching blueprint
         bp = None
         for r in item2.blueprints + item1.blueprints:
-            print("f: " + r.result.name)
             assert isinstance(r, Blueprint)
 
             if r.matches_items(item1, item2):
