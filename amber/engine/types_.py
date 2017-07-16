@@ -195,8 +195,6 @@ class Room:
         if res is not None:
             return res
         else:
-            print("entered {}".format(self._entered))
-            print(self._msg)
             if self._entered:
                 return ""
             else:
