@@ -14,6 +14,25 @@ const titleObj = findByClass("intro--title"),
       roomMessageObj = findByClass("room--topdetails"),
       roomDescriptionObj = findByClass("room--description");
 
+// TODO temporary
+sectionFade(sections["section-loading"]);
+sectionFade(sections["section-intro"]);
+
+
+// Prevents unloading before saving
+/*
+window.onbeforeunload = function (e) {
+    e = e || window.event;
+    // TODO check if game is saved
+
+    if (e) {
+        return e.returnValue = "Are you sure you want to exit the game?"
+    }
+    return "Are you sure you want to exit the game?"
+
+};
+*/
+
 // Setup the websocket
 console.log("Connecting to " + host + ":" + port);
 let socket = new WebSocket("ws://" + host + ":" + port);
