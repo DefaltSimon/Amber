@@ -1,17 +1,21 @@
-@keyframes slideIn {
-    0% {left: -20px; opacity: 0;}
+@keyframes slideAndFade {
+    0% {left: -20px; opacity: 0; background-color: transparentize($color-grey, 0)}
     45% {opacity: 1;}
-    100% {left: 0; opacity: 1;}
+    100% {left: 0; opacity: 1; background-color: transparentize($color-grey, 0.4)}
 }
 
 .menu {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    font-family: $font-primary, $font-secondary, $font-tertiary, Arial;
+    width: 100%;
+    
+    padding: 25px 55px;
     
     position: relative;
     left: -10px;
     
-    animation: slideIn .45s cubic-bezier(0.525, 1.105, 0.705, 0.985) forwards;
+    animation: slideAndFade .4s cubic-bezier(0.525, 1.105, 0.705, 0.99) forwards;
     
     &--list {
         display: flex;
@@ -22,6 +26,12 @@
             padding: 10px;
             
             cursor: pointer;
+            
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            
             color: $color-black-variant;
             font-weight: 700;
             
@@ -39,7 +49,90 @@
     }
     
     &--panels {
-        width: auto;
+        width: calc(100% - 200px);
+        background-color: transparent;
+        position: relative;
+        
+        display: flex;
+        
+        min-height: 80%;
+        opacity: 0;
+        @include transition(opacity .2s ease-in-out);
+        
+        &.visible {
+            opacity: 1;
+            background-color: transparentize($color-black-variant, 0.85);
+            border-radius: 3px;
+        }
+        
+        .panel {
+            visibility: hidden;
+            opacity: 0;
+            @include transition(.1s);
+            
+            &.open {
+                visibility: visible;
+                opacity: 1;
+            }
+            
+            padding: 15px 35px;
+            
+            width: 100%;
+            height: 100%;
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            
+            position: absolute;
+            top: 0;
+            margin-left: auto;
+            margin-right: auto;
+            
+            &--sub {
+                margin-left: 15px;
+                display: flex;
+                align-items: center;
+            }
+            
+            &--title {
+                font-size: 1.6em;
+                font-weight: 700;
+                letter-spacing: 0.1px;
+                padding-bottom: 25px;
+            }
+        }
+    }
+    
+    
+}
+
+.info {
+    &--icons {
+        letter-spacing: 0.5px;
+        
+        a {
+            font-weight: 700;
+            color: darken($color-orange-deep, 20%);
+            @include transition(.1s);
+            
+            &:hover {
+                color: darken($color-orange-deep, 35%);
+            }
+        }
+    }
+}
+
+.options {
+    .panel--sub {
+        padding: 8px;
+    }
+    
+    &--title {
+        font-size: 1.2em;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+        margin-right: 20px;
     }
     
     

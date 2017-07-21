@@ -1,0 +1,44 @@
+.input {
+    position: relative;
+    letter-spacing: 1px;
+    display: block;
+    
+    font-size: 1.1em;
+    
+    input {
+        width: 100%;
+        height: 35px;
+        background-color: transparent;
+        border: none;
+        border-bottom: 2px solid $color-black-variant;
+        padding: 1px 4px;
+        
+        font-size: inherit;
+        letter-spacing: inherit;
+    }
+    
+    label {
+        position: absolute;
+        bottom: 6px;
+        left: 4.75px;
+        opacity: 0.4;
+        z-index: 150;
+        pointer-events: none;
+    
+        letter-spacing: inherit;
+    }
+    
+    .line {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 2px;
+        width: 0;
+        
+        @include transition();
+    }
+    
+    &:hover {
+    
+    }
+}

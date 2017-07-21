@@ -1,0 +1,93 @@
+.toggle {
+    $toggle-height: 30px;
+    $toggle-width: 70px;
+    
+    position: relative;
+    display: inline-block;
+    height: $toggle-height;
+    width: $toggle-width;
+    background-color: $color-black-variant;
+    border-radius: 4px;
+    
+    .circle {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        pointer-events: all;
+        
+        @include transition(.25s cubic-bezier(.17, .67, .56, .99));
+        
+        height: 26px;
+        width: 26px;
+        border-radius: 2px;
+        background-color: $color-white;
+        box-shadow: 0 0 5px 0.1px transparentize($color-white, 0.5);
+        
+    }
+    
+    &:hover .circle {
+        box-shadow: 0 0 5px 0.75px transparentize($color-white, 0.5);;
+    }
+    
+    .checkbox {
+        display: none;
+    }
+    
+    .checkbox:checked ~ .circle {
+        left: 40px;
+    }
+    
+    .checkbox:checked ~ .marker {
+        &:before {
+            opacity: 1;
+        }
+        &:after {
+            opacity: 0;
+        }
+    }
+    
+    .marker {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        justify-content: space-between;
+        
+        height: $toggle-height;
+        width: $toggle-width;
+        
+        letter-spacing: 0.5px;
+        color: $color-white;
+        
+        &:before, &:after {
+            $small-h: ($toggle-width / 2);
+            
+            height: $toggle-height;
+            line-height: $toggle-height;
+            width: $small-h;
+            text-align: center;
+        }
+        
+        $from-border: 5px;
+        
+        &:after {
+            margin-right: $from-border;
+            
+            content: "OFF";
+            position: relative;
+            opacity: 1;
+            @include transition(.1s)
+        }
+        
+        &:before {
+            margin-left: $from-border;
+            
+            content: "ON";
+            position: relative;
+            opacity: 0;
+            @include transition(.1s)
+        }
+        
+        
+    }
+}
