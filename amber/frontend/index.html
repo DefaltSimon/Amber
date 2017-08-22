@@ -161,7 +161,34 @@
 <script>
     const host = "{{ host }}";
     const port = "{{ port }}";
+
+    const debugMode = true;
 </script>
+
+<!--
+<script id="debugScript">
+    if (debugMode === true) {
+        console.warn("debugMode enabled.");
+
+        // Debug mode needs to have a local script downloaded.
+        let localScript = document.createElement("script");
+        localScript.setAttribute("src", "assets/scripts/howlerLocal.js");
+
+        document.insertBefore(localScript, document.getElementById('debugScript'))
+    }
+    else {
+        let localScript = document.createElement("script");
+        localScript.setAttribute("src", "https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.4/howler.min.js");
+        localScript.setAttribute("integrity", "sha256-QX4/AXuyOeg4mIyJz3fZ9c1St34LbN2zJfPv9wgyjGo=");
+
+        document.insertBefore(localScript, document.getElementById('debugScript'))
+    }
+</script>
+-->
+
+<!-- Howler, an audio library-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.4/howler.min.js" integrity="sha256-QX4/AXuyOeg4mIyJz3fZ9c1St34LbN2zJfPv9wgyjGo=" crossorigin="anonymous"></script>
+
 <script src="assets/scripts/logger.js"></script>
 <script src="assets/scripts/utilities.js"></script>
 <script src="assets/scripts/ui.js"></script>
