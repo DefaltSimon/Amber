@@ -33,3 +33,4 @@ wheels/
 # Custom
 dev_tests/
 amber/frontend/assets/images/*.png
+amber/frontend/assets/scripts/howlerLocal.js
