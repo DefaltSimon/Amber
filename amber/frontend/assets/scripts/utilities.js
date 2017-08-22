@@ -91,3 +91,15 @@ function waitFor(cond, callback) {
     }
 
 }
+
+const Status = {
+    "OK": "ok",
+    "MISSING": "missing",
+    "FORBIDDEN": "forbidden",
+    "ERROR": "error"
+};
+
+const Action = {
+    "new_item": "add_to_inventory",
+    "to_room": "move_to"
+};
