@@ -203,7 +203,7 @@ def handshake(data):
 
     return Status.OK, payload
 
-# TODO test
+
 @action.on("get-inventory")
 def get_inventory(data):
     return Status.OK, {"inventory": dictify(amber.inventory)}
@@ -218,11 +218,13 @@ def get_intro(data):
     pl = {
         "title": intro.title,
         "image": intro.image,
-        # TODO sound
+        "sound": intro.sound,
     }
 
     return Status.OK, pl
 
+
+# ROOM
 
 @action.on("get-room")
 def get_room_info(data):
@@ -231,16 +233,6 @@ def get_room_info(data):
     return Status.OK, dictify(cr)
 
 
-@action.on("get-item")
-def get_item_info(data):
-    item = Item.handle_id_or_object(data.get("id"))
-
-    if not item:
-        return Status.MISSING, {}
-
-    return Status.OK, {"item": extract_from_item(item)}
-
-# TODO test
 @action.on("get-room-desc")
 def get_room_desc(data):
     desc = amber.current_room.description
@@ -248,54 +240,8 @@ def get_room_desc(data):
     return Status.OK, dictify(desc)
 
 
-@action.on("get-locations")
-def get_locations(data):
-    return Status.OK, {"locations": extract_locations(amber.current_room.locations)}
+# ROOM RELATED
 
-# TODO test
-@action.on("move-to")
-def move_to(data):
-    room_id = data.get("room")
-
-    room = Room.handle_id_or_object(room_id)
-
-    try:
-        new = amber.walk_to(room)
-    except NotAllowed as e:
-        return Status.FORBIDDEN, {"message": e}
-
-    return Status.OK, dictify(new)
-
-# TODO test
-@action.on("combine-items")
-def combine_items(item_list):
-    item1, item2 = item_list.get("items")
-    item1, item2 = Item.handle_id_or_object(item1), Item.handle_id_or_object(item2)
-
-    try:
-        result = amber.combine(item1, item2)
-    except NoSuchBlueprint as e:
-        return Status.FORBIDDEN, {"message": e}
-
-    return Status.OK, dictify(result)
-
-# TODO test
-@action.on("use-item")
-def use_item(data):
-    item_id = data.get("item")
-
-    item = Item.handle_id_or_object(item_id)
-    status, msg = item.use()
-
-    if status is False:
-        return Status.FORBIDDEN, {"message": msg}
-    else:
-        if isinstance(status, act.Action):
-            return Status.OK, {**dictify(status.to_dict()), **{"message": msg}}
-        else:
-            return Status.OK, {"message": msg}
-
-# TODO test
 @action.on("desc-use")
 def use_from_description(obj):
     obj = obj.get("item")
@@ -320,6 +266,65 @@ def use_from_description(obj):
         status = act.Action.move_to_room(room)
         return Status.OK, {**{"message": room.message}, **dictify(status.to_dict())}
 
+
+@action.on("get-locations")
+def get_locations(data):
+    return Status.OK, {"locations": extract_locations(amber.current_room.locations)}
+
+
+@action.on("move-to")
+def move_to(data):
+    room_id = data.get("room")
+
+    room = Room.handle_id_or_object(room_id)
+
+    try:
+        new = amber.walk_to(room)
+    except NotAllowed as e:
+        return Status.FORBIDDEN, {"message": e}
+
+    return Status.OK, dictify(new)
+
+# TODO test
+@action.on("combine-items")
+def combine_items(data):
+    item1, item2 = data.get("items")
+    item1, item2 = Item.handle_id_or_object(item1), Item.handle_id_or_object(item2)
+
+    try:
+        result = amber.combine(item1, item2)
+    except NoSuchBlueprint as e:
+        return Status.FORBIDDEN, {"message": e}
+
+    return Status.OK, dictify(result)
+
+# ITEM
+
+
+@action.on("get-item")
+def get_item_info(data):
+    item = Item.handle_id_or_object(data.get("id"))
+
+    if not item:
+        return Status.MISSING, {}
+
+    return Status.OK, {"item": extract_from_item(item)}
+
+
+@action.on("use-item")
+def use_item(data):
+    item_id = data.get("item")
+
+    item = Item.handle_id_or_object(item_id)
+    status, msg = item.use()
+
+    if status is False:
+        return Status.FORBIDDEN, {"message": msg}
+    else:
+        if isinstance(status, act.Action):
+            return Status.OK, {**dictify(status.to_dict()), **{"message": msg}}
+        else:
+            return Status.OK, {"message": msg}
 
 
 class SocketHandler:
