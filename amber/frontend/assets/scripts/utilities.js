@@ -105,14 +105,14 @@ class SoundPlayer {
     playSound(url) {
         // Do not start playing again if it is the same sound
         if (this.lastUrl === url) {
-            logSound.debug("Url is the same as last time, not replaying...");
+            logSound.debug("Url is the same as current sound, not restarting...");
             return
         }
 
         if (this.currentSound !== null) {
-            this.currentSound.fade(1, 0, 0.5);
-            this.currentSound.stop();
-            this.currentSound = null;
+            logSound.debug("Music was already playing, fading out...");
+
+            this.currentSound.fade(1, 0, 750);
         }
 
         let bThis = this;
@@ -121,6 +121,7 @@ class SoundPlayer {
         this.currentSound = new Howl({
             src: [url],
             autoplay: true,
+            preload: true,
             onend: function () {
                 logSound.debug("Finished playing " + url);
                 bThis.lastUrl = null;
