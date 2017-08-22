@@ -137,8 +137,8 @@ class AmberFrontend {
     // TODO implement other endpoints
 }
 
-amber = new AmberFrontend();
-
+let amber = new AmberFrontend();
+let music = new SoundPlayer();
 
 // Send data to AmberFrontend instance or the respective callback
 socket.onmessage = function (evt) {
@@ -247,6 +247,13 @@ function _parseAndSetRoom(data) {
     roomDescriptionObj.innerHTML = splits.join("");
     roomMessageObj.innerHTML = data.msg;
 
+    // Set up music
+    if (data.sound !== null) {
+        logUI.log("Playing sound: " + data.sound);
+        music.playSound(data.sound);
+    }
+
+    logUI.debug("Setting room image: " + data.image);
     setImageSrc(roomImageObj, data.image);
 }
 

@@ -68,6 +68,7 @@ function setImageSrc(el, src) {
         el.style.display = "none";
     }
     else {
+        el.style.display = "flex";
         el.setAttribute("src", src);
     }
 }
@@ -92,6 +93,51 @@ function waitFor(cond, callback) {
 
 }
 
+const logSound = new Logger("Sound");
+
+// SOUND PLAYER
+class SoundPlayer {
+    constructor () {
+        this.currentSound = null;
+        this.lastUrl = null;
+    }
+
+    playSound(url) {
+        // Do not start playing again if it is the same sound
+        if (this.lastUrl === url) {
+            logSound.debug("Url is the same as last time, not replaying...");
+            return
+        }
+
+        if (this.currentSound !== null) {
+            this.currentSound.fade(1, 0, 0.5);
+            this.currentSound.stop();
+            this.currentSound = null;
+        }
+
+        let bThis = this;
+
+        this.lastUrl = url;
+        this.currentSound = new Howl({
+            src: [url],
+            autoplay: true,
+            onend: function () {
+                logSound.debug("Finished playing " + url);
+                bThis.lastUrl = null;
+            }
+        });
+
+        logSound.debug("Started playing: " + url)
+    }
+
+    fadeOut() {
+        this.currentSound.fade(1, 0, 0.5);
+        this.currentSound.stop();
+        this.currentSound = null;
+    }
+}
+
+// CONSTANTS
 const Status = {
     "OK": "ok",
     "MISSING": "missing",
