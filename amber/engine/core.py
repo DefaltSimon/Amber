@@ -157,3 +157,10 @@ class Amber(metaclass=Singleton):
         self.current_room = self.starting_room
 
         run_web(self, open_browser)
+
+    # INTERNAL METHODS
+    def _add_to_inventory(self, item: Union[Item, str]):
+        item = Item.handle_id_or_object(item)
+
+        if item not in self.inventory:
+            self.inventory.append(item)

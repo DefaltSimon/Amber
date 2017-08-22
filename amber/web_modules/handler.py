@@ -230,6 +230,16 @@ def get_room_info(data):
 
     return Status.OK, dictify(cr)
 
+
+@action.on("get-item")
+def get_item_info(data):
+    item = Item.handle_id_or_object(data.get("id"))
+
+    if not item:
+        return Status.MISSING, {}
+
+    return Status.OK, {"item": extract_from_item(item)}
+
 # TODO test
 @action.on("get-room-desc")
 def get_room_desc(data):
