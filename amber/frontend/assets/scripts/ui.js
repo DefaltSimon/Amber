@@ -30,17 +30,16 @@ function getElementTransTime(el) {
 let fade_active = false;
 let fade_target_time = getTimeMs();
 
+// Fades a section in or out
 function sectionFade(el, force_fade) {
     if ((fade_active === true) && (force_fade !== true)) {
         let time_delta = Math.abs(getTimeMs() - fade_target_time);
 
-        setTimeout(function () {
-            sectionFade(el);
-        }, time_delta );
+        setTimeout(sectionFade, time_delta, el);
         return
     }
 
-    if (el === "undefined") {
+    if (el === "undefined" || el === null) {
         return
     }
 
@@ -65,15 +64,25 @@ function sectionFade(el, force_fade) {
     }
 }
 
-let callbacks = {};
+
+// HANDLES KEYPRESSES
+let callbacks_press = {};
+let callbacks_keydown = {};
+
 function bindKey(key, cb) {
-    callbacks[key] = cb;
+    callbacks_press[key] = cb;
 }
 
+// Should be used for characters only, this makes repeated calls when the button is down
+function bindKeyChar(key, cb) {
+    callbacks_keydown[key] = cb;
+}
+
+// Handles callbacks_press and _keydown
 addEvent(document, "keypress", function (e) {
     e = e || window.event;
 
-    let cb = callbacks[e.keyCode];
+    let cb = callbacks_press[e.keyCode];
     if (typeof cb !== "undefined") {
         cb()
     }
@@ -82,7 +91,7 @@ addEvent(document, "keypress", function (e) {
 addEvent(document, "keydown", function (e) {
     e = e || window.event;
 
-    let cb = callbacks[e.keyCode];
+    let cb = callbacks_keydown[e.keyCode];
     if (typeof cb !== "undefined") {
         cb()
     }
@@ -90,8 +99,7 @@ addEvent(document, "keydown", function (e) {
 
 // Key constants
 const ESCAPE = 27,
-      ENTER = 13,
-      P = 80;
+      ENTER = 13;
 
 
 // Menu helpers
@@ -115,7 +123,8 @@ function fadePanel(el, close) {
     }
 }
 
-// MENU HANDLING
+
+// MENU HANDLER
 class Menu {
     openLoadGame () {
         // TODO
@@ -176,17 +185,21 @@ function autoCloseMenu() {
     }
 }
 
+// Game state configuration
 class GameConfig {
     constructor () {
         // Sets defaults
         this.autoSave = true;
         this.playerName = null;
+        // TODO this should include game saves
     }
 }
-
 let config = new GameConfig();
 
+
 // Keypress setup
+// ENTER -> start game
+// ESCAPE -> open menu
 function fadeToGame() {
     let introScreen = sections["section-intro"];
     let gameScreen = sections["section-game"];
@@ -210,7 +223,7 @@ function handleMenu() {
     sectionFade(sections["section-menu"]);
 }
 
-bindKey(ESCAPE, handleMenu);
+bindKeyChar(ESCAPE, handleMenu);
 
 
 // PLAYER NAME input
@@ -224,6 +237,8 @@ addEvent(playerNameInput, "focus", function () {
     playerNameLabel.innerHTML = "";
 });
 
+
+// Handles player name change
 function savePlayerName() {
     config.playerName = playerNameInput.value;
 }

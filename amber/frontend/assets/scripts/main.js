@@ -15,8 +15,8 @@ const titleObj = findByClass("intro--title"),
       roomDescriptionObj = findByClass("room--description");
 
 // TODO temporary
-sectionFade(sections["section-loading"]);
-sectionFade(sections["section-intro"]);
+// sectionFade(sections["section-loading"]);
+// sectionFade(sections["section-intro"]);
 
 
 // Prevents unloading before saving

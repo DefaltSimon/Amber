@@ -84,7 +84,7 @@ function assert(condition, message) {
 
 function waitFor(cond, callback) {
     if (!cond) {
-        setTimeout(waitFor(cond, callback), 150);
+        setTimeout(waitFor, 150, cond, callback);
     }
     else {
         callback()
