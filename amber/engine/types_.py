@@ -6,14 +6,17 @@ from typing import Union
 from . import directory
 from .exceptions import IdMissing, AmberException
 from .events import EventManager
+from .action import Action, ADD_TO_INV
 
 log = logging.getLogger(__name__)
+
 
 def _get_amber():
     if not directory.is_in_world("amber"):
         raise RuntimeError("please instantiate Amber before creating Rooms/Items/etc..")
 
     return directory.world["amber"]
+
 
 def _generate_id(preferred: str):
     """
@@ -55,6 +58,24 @@ def _get_room_postponed(room_id):
     :return: Room / None
     """
     yield directory.obj_collector.find_room_by_id(room_id)
+
+
+def _parse_event_response(res):
+    # If user returns only the message, default to no action, just the message
+    if not isinstance(res, tuple):
+        return Action.nothing(), res
+
+    # Only two arguments are allowed
+    if len(res) != 2:
+        raise TypeError("expected only two arguments, got {}".format(len(res)))
+
+    action = res[0]
+
+    if action.action == ADD_TO_INV:
+        _get_amber()._add_to_inventory(action.object)
+
+    return res
+
 
 # Regex for use in descriptions
 desc_regex = re.compile(r"({\w+\|\w+})", re.MULTILINE)
@@ -479,7 +500,7 @@ class Item:
         if not res:
             return True, ""
         else:
-            return res
+            return _parse_event_response(res)
 
     def use(self):
         """
@@ -494,7 +515,7 @@ class Item:
         if not res:
             return True, self.description
         else:
-            return res
+            return _parse_event_response(res)
 
     # EVENT REGISTERING
     def event(self, event_name):
@@ -535,6 +556,9 @@ class Item:
             return False
 
         return self.id == other.id
+
+    def __str__(self):
+        return self.name
 
 
 class IntroScreen:
