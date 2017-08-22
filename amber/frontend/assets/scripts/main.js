@@ -102,7 +102,7 @@ class AmberFrontend {
         this.sendAction("get-intro", null, cb)
     }
 
-    getRoomInfo(cb) {
+    getCurrentRoom(cb) {
         this.sendAction("get-room", null, cb)
     }
 
@@ -301,12 +301,22 @@ socket.onopen = function () {
 
         let title = data.title;
         let image = data.image;
+        let sound = data.sound;
 
-        titleObj.innerHTML = title;
-        imageObj.setAttribute("src", image);
+        if (sound !== null) {
+            music.playSound(sound);
+        }
 
-        // Proceed to getting the first room data
-        amber.getRoomInfo(function (status, data) {
+        if (title !== null) {
+            titleObj.innerHTML = title;
+        }
+
+        if (image !== null) {
+            imageObj.setAttribute("src", image);
+        }
+
+        // Proceed to getting the first room info
+        amber.getCurrentRoom(function (status, data) {
             logUI.log("Setting initial room state");
 
             _parseAndSetRoom(data);

@@ -563,12 +563,13 @@ class Item:
 
 class IntroScreen:
     __slots__ = (
-        "title", "image"
+        "title", "image", "sound"
     )
 
-    def __init__(self, title: str, image: str = None):
+    def __init__(self, title: str, image: str = None, sound: str = None):
         self.title = str(title)
         self.image = str(image)
+        self.sound = str(sound)
 
         if directory.is_in_world("intro"):
             log.warning("IntroScreen already exists, overwriting")
