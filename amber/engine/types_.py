@@ -6,7 +6,6 @@ from typing import Union
 from . import directory
 from .exceptions import IdMissing, AmberException
 from .events import EventManager
-from .action import Action, ADD_TO_INV
 
 log = logging.getLogger(__name__)
 
@@ -58,23 +57,6 @@ def _get_room_postponed(room_id):
     :return: Room / None
     """
     yield directory.obj_collector.find_room_by_id(room_id)
-
-
-def _parse_event_response(res):
-    # If user returns only the message, default to no action, just the message
-    if not isinstance(res, tuple):
-        return Action.nothing(), res
-
-    # Only two arguments are allowed
-    if len(res) != 2:
-        raise TypeError("expected only two arguments, got {}".format(len(res)))
-
-    action = res[0]
-
-    if action.action == ADD_TO_INV:
-        _get_amber()._add_to_inventory(action.object)
-
-    return res
 
 
 # Regex for use in descriptions
@@ -279,7 +261,6 @@ class Room:
             else:
                 raise IdMissing("room {} does not exist".format(room_or_id))
 
-    # noinspection PyProtectedMember
     def _finalize_loading(self):
         log.debug("Finalizing {}".format(self._name))
         for c, room_i in enumerate(self._locations.copy()):
@@ -323,12 +304,11 @@ class Room:
 
         amber.starting_room = self
 
-    # DEPRECATED
     def enter(self) -> tuple:
         """
         Must return a tuple:
 
-        1st item: bool indicating if the pickup should be made
+        1st item: bool indicating if user is allowed to enter OR Action instance
         2nd item: str as a message to display
 
         :return: tuple
@@ -338,33 +318,6 @@ class Room:
             return True, self.message
         else:
             return res
-
-    # DEPRECATED
-    @property
-    def can_enter(self) -> bool:
-        """
-        Property specifying if the user's allowed to enter this room. Can be prevented by a custom event
-        :return: bool/str
-        """
-        res = self._event_mgr.dispatch_event("enter", self)
-        # None is the default return type (when there is no function registered)
-        if res is None:
-            res = True
-
-        return res
-
-    # DEPRECATED
-    @property
-    def can_leave(self) -> bool:
-        """
-        Property indicating if the user can leave this room. Can be prevented by a custom event handler
-        :return: bool/str
-        """
-        res = self._event_mgr.dispatch_event("leave", self)
-        if res is None:
-            res = True
-
-        return res
 
 
 class Blueprint:
@@ -396,9 +349,11 @@ class Blueprint:
         if not recipe_id:
             self.id = _generate_id("{}-{}".format(ingredient1.name, ingredient2.name))
         elif directory.id_exists(recipe_id):
-            raise RuntimeError("object with id '{}' already exists".format(recipe_id))
+            raise RuntimeError("blueprint with id '{}' already exists".format(recipe_id))
         else:
-            self.item_id = _generate_id(recipe_id)
+            self.id = _generate_id(recipe_id)
+
+        self._event_mgr = EventManager(self.id, ["combine"])
 
         directory.obj_collector.add_blueprint(self)
 
@@ -414,6 +369,21 @@ class Blueprint:
         item = Item.handle_id_or_object(item)
 
         return item == self.result
+
+    def combine(self) -> tuple:
+        """
+        Must return a tuple:
+
+        1st item: bool indicating if user is allowed to combine this item
+        2nd item: str as a message to display
+
+        :return: tuple
+        """
+        res = self._event_mgr.dispatch_event("combine")
+        if not res:
+            return True, ""
+        else:
+            return res
 
 
 class Item:
@@ -500,7 +470,7 @@ class Item:
         if not res:
             return True, ""
         else:
-            return _parse_event_response(res)
+            return res
 
     def use(self):
         """
@@ -515,7 +485,7 @@ class Item:
         if not res:
             return True, self.description
         else:
-            return _parse_event_response(res)
+            return res
 
     # EVENT REGISTERING
     def event(self, event_name):

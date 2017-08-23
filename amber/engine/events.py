@@ -12,6 +12,9 @@ class EventManager:
 
         self._events = {str(a): None for a in events}
 
+    def event_exists(self, event_name):
+        return self._events.get(event_name) is not None
+
     # noinspection PyCallingNonCallable
     def dispatch_event(self, event_name, *args, **kwargs):
         """

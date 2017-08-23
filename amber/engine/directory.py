@@ -128,7 +128,7 @@ class ObjectCollector(metaclass=Singleton):
 
         return None
 
-    def find_by_id_fuzzy(self, object_id: str):
+    def find_by_id(self, object_id: str):
         """
         Attempts to find the matching object by an id in all caches
         :param object_id: object id
