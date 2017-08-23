@@ -1294,7 +1294,8 @@ text transform
   font-size: 1.2em;
   font-weight: 500;
   letter-spacing: 0.2px;
-  margin-right: 20px; }
+  margin-right: 20px;
+  min-width: 30%; }
 
 /* Components */
 /*----------------------------------*\
