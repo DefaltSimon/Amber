@@ -138,7 +138,6 @@ class AmberFrontend {
 }
 
 let amber = new AmberFrontend();
-let music = new SoundPlayer();
 
 // Send data to AmberFrontend instance or the respective callback
 socket.onmessage = function (evt) {
@@ -303,7 +302,7 @@ socket.onopen = function () {
         let image = data.image;
         let sound = data.sound;
 
-        if (sound !== null) {
+        if (sound !== null && sound !== "None") {
             music.playSound(sound);
         }
 

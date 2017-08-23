@@ -100,6 +100,9 @@ class SoundPlayer {
     constructor () {
         this.currentSound = null;
         this.lastUrl = null;
+
+        // User-configurable
+        this.defaultVolume = 1;
     }
 
     playSound(url) {
@@ -122,6 +125,7 @@ class SoundPlayer {
             src: [url],
             autoplay: true,
             preload: true,
+            volume: this.defaultVolume,
             onend: function () {
                 logSound.debug("Finished playing " + url);
                 bThis.lastUrl = null;
@@ -136,7 +140,20 @@ class SoundPlayer {
         this.currentSound.stop();
         this.currentSound = null;
     }
+
+    setVolume(volume) {
+        this.defaultVolume = volume;
+
+        if (this.currentSound !== null) {
+            logSound.debug("Fading volume to " + volume);
+            this.currentSound.volume(volume);
+        }
+
+
+    }
 }
+
+let music = new SoundPlayer();
 
 // CONSTANTS
 const Status = {

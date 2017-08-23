@@ -170,6 +170,10 @@ class Menu {
         }
     }
 
+    setVolume(volume) {
+        music.setVolume(volume);
+    }
+
     exitGame () {
         // TODO
     }
@@ -191,7 +195,15 @@ class GameConfig {
         // Sets defaults
         this.autoSave = true;
         this.playerName = null;
+        this.soundVolume = 1;
+
+        music.setVolume(this.soundVolume)
         // TODO this should include game saves
+    }
+
+    setVolume(volume) {
+        this.soundVolume = volume;
+        music.setVolume(volume);
     }
 }
 let config = new GameConfig();
@@ -229,7 +241,8 @@ bindKeyChar(ESCAPE, handleMenu);
 // PLAYER NAME input
 const playerNameInput = findById("player-input"),
       playerNameLabel = findById("player-name"),
-      playerSaveButton = findByClass("button--confirm");
+      playerSaveButton = findByClass("button--confirm"),
+      playerVolumeSlider = findById("slider-volume");
 
 // Sets up the player name option
 playerNameInput.innerHTML = config.playerName;
@@ -257,4 +270,9 @@ addEvent(playerNameInput, "input", function () {
 addEvent(playerSaveButton, "click", function () {
     savePlayerName();
     playerSaveButton.classList.remove("visible");
+});
+
+addEvent(playerVolumeSlider, "change", function () {
+    let volume = parseFloat(playerVolumeSlider.value / 100);
+    config.setVolume(volume);
 });
