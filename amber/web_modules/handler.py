@@ -6,7 +6,7 @@ import inspect
 
 from .web_utils import Status, get_engine_version
 from ..engine.types_ import Room, Description, Item, Blueprint
-from ..engine.exceptions import NotAllowed, AmberException, NoSuchBlueprint, IdMissing
+from ..engine.exceptions import NoSuchBlueprint, IdMissing
 from ..engine import action as act, directory
 
 log = logging.getLogger(__name__)
@@ -63,7 +63,6 @@ class SocketEventManager(metaclass=HandlerMeta):
     def on(self, event_name):
         """
         Registers an event handler via decorators
-        :param fn: Provided automatically by the decorator
         :param event_name: Your first parameter: name of the event (by property names)
         :return: function for the decorator to use
         """
@@ -82,6 +81,40 @@ event = SocketEventManager("event")
 action = SocketEventManager("action")
 
 # UTILITIES
+
+
+def parse_event_response(res: tuple) -> tuple:
+    # If user returns only the message, default to no action, just the message
+    if not isinstance(res, tuple):
+        return act.Action.nothing(), res
+
+    # Max two arguments
+    if len(res) != 2:
+        raise TypeError("expected only two arguments, got {}".format(len(res)))
+
+    o_act, message = res
+
+    if isinstance(o_act, act.Action):
+        if o_act.action == act.ADD_TO_INV:
+            amber._add_to_inventory(o_act.object)
+
+        elif o_act.action == act.MOVE_TO:
+            st, message = amber.walk_to(o_act.object)
+
+        elif o_act.action == act.REMOVE_FROM_INV:
+            items = o_act.object
+            for item in items:
+                amber._remove_from_inventory(item)
+
+
+        # Add action to dictionary - event returned an Action
+        return Status.OK, {**{"message": message}, **o_act.to_dict()}
+
+    if isinstance(o_act, bool):
+        return Status.OK if o_act else Status.FORBIDDEN, message
+
+    # The first parameter should always be either Action or bool
+    raise RuntimeError("First tuple parameter should be an Action object or a bool, got {}".format(type(o_act).__name__))
 
 
 def extract_from_room(room: Room) -> dict:
@@ -131,7 +164,7 @@ def extract_from_action(a: act.Action) -> dict:
     return a.to_dict()
 
 
-def extract_locations(obj):
+def extract_locations(obj: list) -> list:
     return [extract_from_room_name_id(a) for a in obj]
 
 
@@ -188,9 +221,134 @@ def dictify(obj):
 
 # EVENT HANDLERS
 
+######
+# ROOM
+# room/
+######
 
-@event.on("handshake")
+
+# /get
+
+@action.on("room/get/state")
+def get_room_info(data):
+    """
+    Gets current room state
+    :param data: None
+
+    :return dict(Room)
+    """
+    cr = amber.current_room
+
+    return Status.OK, extract_from_room(cr)
+
+
+@action.on("room/get/description")
+def get_room_desc(data):
+    """
+    Gets current room description
+    :param data: None
+
+    :return dict(Description)
+    """
+    desc = amber.current_room.description
+
+    return Status.OK, extract_from_description(desc)
+
+
+@action.on("room/get/locations")
+def get_room_paths(data):
+    """
+    Gets possible ways to different rooms from the current one
+    :param data: None
+
+    :return: list(Room, ...)
+    """
+    return Status.OK, extract_locations(amber.current_room.locations)
+
+
+@action.on("room/get/name")
+def get_room_name(data):
+    """
+    Gets the current room name
+    :param data: None
+
+    :return: str
+    """
+    cr = amber.current_room
+
+    return Status.OK, cr.name
+
+
+@action.on("room/get/image")
+def get_room_image(data):
+    """
+    Gets the current room image.
+    :param data: None
+
+    :return: str
+    """
+    image = amber.current_room.image
+
+    return Status.OK, image
+
+
+@action.on("room/use/description")
+def use_from_description(obj):
+    """
+    Uses a description item
+    :param obj:
+
+    :return: dict(message, Action)
+    """
+    obj = obj.get("item")
+
+    try:
+        obj = Item.handle_id_or_object(obj)
+
+        resp = obj.pickup()
+        return parse_event_response(resp)
+
+    # Is a room, not an item
+    except IdMissing:
+        obj = Room.handle_id_or_object(obj)
+
+        resp = amber.walk_to(obj)
+
+        return parse_event_response(resp)
+
+
+@action.on("room/enter")
+def move_to(data):
+    """
+    Enters a room
+    :param data: dict(room: str)
+
+    :return: dict(room: Room, Action)
+    """
+    room_id = data.get("room")
+
+    room = Room.handle_id_or_object(room_id)
+
+    resp = amber.walk_to(room)
+    status, stuff = parse_event_response(resp)
+
+    return status, {**stuff, **{"room": extract_from_room(room)}}
+
+
+######
+# GAME
+# game/
+######
+
+
+@event.on("game/handshake")
 def handshake(data):
+    """
+    Initial handshake that must be completed when connected
+    :param data: dict(uiVersion)
+
+    :return: dict(engineVersion, author, name, description)
+    """
     ui_version = data.get("uiVersion")
     log.info("Client connected with uiVersion {}".format(ui_version))
 
@@ -204,13 +362,25 @@ def handshake(data):
     return Status.OK, payload
 
 
-@action.on("get-inventory")
+@action.on("game/get/inventory")
 def get_inventory(data):
-    return Status.OK, {"inventory": dictify(amber.inventory)}
+    """
+    Gets inventory state
+    :param data: None
+
+    :return: list
+    """
+    return Status.OK, dictify(amber.inventory)
 
 
-@action.on("get-intro")
+@action.on("game/get/intro")
 def get_intro(data):
+    """
+    Gets the game intro
+    :param data: None
+
+    :return: dict(title, image, sound)
+    """
     intro = directory.world.get("intro")
     if not intro:
         return Status.MISSING, None
@@ -224,79 +394,67 @@ def get_intro(data):
     return Status.OK, pl
 
 
-# ROOM
-
-@action.on("get-room")
-def get_room_info(data):
-    cr = amber.current_room
-
-    return Status.OK, dictify(cr)
+######
+# INVENTORY
+# inventory/
+######
 
 
-@action.on("get-room-desc")
-def get_room_desc(data):
-    desc = amber.current_room.description
+@action.on("inventory/use")
+def use_item(data):
+    """
+    Uses an item in your inventory
+    :param data: dict(item: str)
 
-    return Status.OK, dictify(desc)
+    :return: dict(message, Action)
+    """
+    item_id = data.get("item")
+    item = Item.handle_id_or_object(item_id)
 
+    resp = item.use()
 
-# ROOM RELATED
-
-@action.on("desc-use")
-def use_from_description(obj):
-    obj = obj.get("item")
-
-    try:
-        obj = Item.handle_id_or_object(obj)
-
-        status, msg = obj.pickup()
-        if status is False:
-            return Status.FORBIDDEN, dict(data={"message": msg})
-        else:
-            if isinstance(status, act.Action):
-                return Status.OK, {**dictify(status.to_dict()), **{"message": msg}}
-            else:
-                return Status.OK, {"message": msg}
-
-    # Is a room, not an item
-    except IdMissing:
-        obj = Room.handle_id_or_object(obj)
-
-        room = amber.walk_to(obj)
-        status = act.Action.move_to_room(room)
-        return Status.OK, {**{"message": room.message}, **dictify(status.to_dict())}
+    return parse_event_response(resp)
 
 
-@action.on("get-locations")
-def get_locations(data):
-    return Status.OK, {"locations": extract_locations(amber.current_room.locations)}
-
-
-@action.on("move-to")
-def move_to(data):
-    room_id = data.get("room")
-
-    room = Room.handle_id_or_object(room_id)
-
-    try:
-        new = amber.walk_to(room)
-    except NotAllowed as e:
-        return Status.FORBIDDEN, {"message": e}
-
-    return Status.OK, dictify(new)
-
-# TODO test
-@action.on("combine-items")
+@action.on("inventory/combine")
 def combine_items(data):
+    """
+    Combines two items (either both in inventory or one in room)
+    :param data: dict(items: list)
+
+    :return:
+    If successful, dict(item: Item, Action.remove_from_inv())
+    """
     item1, item2 = data.get("items")
-    item1, item2 = Item.handle_id_or_object(item1), Item.handle_id_or_object(item2)
 
-    try:
-        result = amber.combine(item1, item2)
-    except NoSuchBlueprint as e:
-        return Status.FORBIDDEN, {"message": e}
+    obj1, obj2 = directory.obj_collector.find_by_id(item1), directory.obj_collector.find_by_id(item2)
 
-    return Status.OK, dictify(result)
+    if isinstance(obj1, Item) and isinstance(obj2, Item):
+        # Both are items, do a normal combine
+
+        bp = amber.combine(item1, item2)
+
+        if not bp:
+            return Status.MISSING, amber.defaults.failed_combine
+        else:
+            res_item = bp.result
+            # Default status is True, parse_event_response does not automatically remove items from inventory
+            status, additional = parse_event_response(bp.combine())
+
+            # Default behaviour: remove previous items, add the new one into inventory
+            if status == Status.OK:
+                amber._add_to_inventory(res_item)
+                amber._remove_from_inventory(obj1)
+                amber._remove_from_inventory(obj2)
+
+                # on REMOVE_FROM_INVENTORY, client automatically refreshes the inventory, so this is fine
+                return Status.OK, {**{"message": bp.message}, **act.Action.remove_from_inventory((obj1, obj2)).to_dict()}
+            # If user is not allowed to combine, return a message (additional)
+            else:
+                return status, additional
+
+    # TODO Item + Room
+    # TODO prevent Room + Room
 
 # ITEM
 
@@ -311,20 +469,7 @@ def get_item_info(data):
     return Status.OK, {"item": extract_from_item(item)}
 
 
-@action.on("use-item")
-def use_item(data):
-    item_id = data.get("item")
 
-    item = Item.handle_id_or_object(item_id)
-    status, msg = item.use()
-
-    if status is False:
-        return Status.FORBIDDEN, {"message": msg}
-    else:
-        if isinstance(status, act.Action):
-            return Status.OK, {**dictify(status.to_dict()), **{"message": msg}}
-        else:
-            return Status.OK, {"message": msg}
 
 
 class SocketHandler:
