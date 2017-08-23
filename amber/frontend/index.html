@@ -69,7 +69,7 @@
         </div>
     </section>
 
-    <section class="game-section nodisplay nm" id="section-menu">
+    <section class="game-section nodisplay" id="section-menu">
         <div class="menu">
             <div class="menu--list">
                 <span class="mb30" onclick="autoCloseMenu()" id="menu-resume">Resume</span>
@@ -83,30 +83,33 @@
 
                 <div class="panel options" id="panel-options">
                     <div class="panel--title">Options</div>
-                    <div class="panel--sub">
-                        <span class="options--title">Autosave</span>
-                        <label class="toggle" for="autosave-toggle">
-                            <input type="checkbox" class="checkbox" id="autosave-toggle" checked>
-                            <span class="circle"></span>
-                            <span class="marker"></span>
-                        </label>
-                    </div>
-                    <div class="panel--sub">
-                        <span class="options--title">Player Name</span>
-                        <span class="input">
-                            <input type="text" id="player-input" autocomplete="off">
-                            <label id="player-name">Player Name</label>
-                            <span class="line"></span>
-                        </span>
-                        <span class="button--confirm">
-                            <span>Save</span>
-                        </span>
-                    </div>
-                    <div class="panel--sub">
-                        <span class="options--title">Sound Volume</span>
-                        <span class="input">
-                            <input class="range" type="range" name="volume" id="slider-volume" value="100" min="0" max="100">
-                        </span>
+
+                    <div class="panel--container">
+                        <div class="panel--sub">
+                            <span class="option--title">Autosave</span>
+                            <label class="toggle" for="autosave-toggle">
+                                <input type="checkbox" class="checkbox" id="autosave-toggle" checked>
+                                <span class="circle"></span>
+                                <span class="marker"></span>
+                            </label>
+                        </div>
+                        <div class="panel--sub">
+                            <span class="option--title">Player Name</span>
+                            <span class="input">
+                                <input type="text" id="player-input" autocomplete="off">
+                                <label id="player-name">Player Name</label>
+                                <span class="line"></span>
+                            </span>
+                            <span class="button--confirm">
+                                <span>Save</span>
+                            </span>
+                        </div>
+                        <div class="panel--sub">
+                            <span class="option--title">Sound Volume</span>
+                            <span class="input">
+                                <input class="range" type="range" name="volume" id="slider-volume" value="100" min="0" max="100">
+                            </span>
+                        </div>
                     </div>
                 </div>
 
