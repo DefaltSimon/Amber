@@ -224,7 +224,12 @@ function fadeToGame() {
     sectionFade(gameScreen);
 }
 
-bindKey(ENTER, fadeToGame);
+bindKey(ENTER, function () {
+    // Fade to game only if not in menu
+    if (current_panel === null) {
+        fadeToGame()
+    }
+});
 
 function handleMenu() {
     if (current_panel !== null) {

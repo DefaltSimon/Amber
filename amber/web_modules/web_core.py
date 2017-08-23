@@ -17,8 +17,10 @@ FRONTEND_DIR = os.path.join(MODULE_DIR, "..", "frontend")
 
 GAME_DIR = os.path.dirname(sys.argv[0])
 
-with open(os.path.join(FRONTEND_DIR, "index.html"), "r") as file:
-    MAIN_TEMPLATE = file.read()
+
+def get_main_page():
+    with open(os.path.join(FRONTEND_DIR, "index.html"), "r") as file:
+        return file.read()
 
 HOST = "localhost"
 FLASK_PORT = randint(8560, 8566)
@@ -36,9 +38,10 @@ logging.getLogger("werkzeug").setLevel(logging.WARNING)
 
 @app.route("/")
 def main_page():
-    return render_template_string(MAIN_TEMPLATE, host=HOST, port=SOCKET_PORT)
+    return render_template_string(get_main_page(), host=HOST, port=SOCKET_PORT)
 
 
+# ONLY FOR DEVELOPMENT!
 @app.after_request
 def add_header(r):
     """
@@ -47,10 +50,10 @@ def add_header(r):
     if request.path != "/":
         return r
 
-    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     r.headers["Pragma"] = "no-cache"
     r.headers["Expires"] = "0"
-    r.headers['Cache-Control'] = 'public, max-age=0'
+    # r.headers['Cache-Control'] = 'public, max-age=0'
     return r
 
 
