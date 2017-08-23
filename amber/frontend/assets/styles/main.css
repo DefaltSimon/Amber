@@ -1572,4 +1572,97 @@ main .game-section#section-loading {
     bottom: 2px;
     box-shadow: 0 2px 0 0 #255627; }
 
+input[type=range] {
+  -webkit-appearance: none;
+  /* Hides the slider so that custom slider can be made */
+  width: 100%;
+  /* Specific width is required for Firefox. */
+  background: transparent;
+  /* Otherwise white in Chrome */
+  border-bottom: none; }
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; }
+
+input[type=range]:focus {
+  outline: none; }
+
+input[type=range]::-ms-track {
+  width: 100%;
+  cursor: pointer;
+  /* Hides the slider so custom styles can be added */
+  background: transparent;
+  border-color: transparent;
+  color: transparent; }
+
+input[type=range].range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: 1px solid #212121;
+  border-radius: 1px;
+  height: 32px;
+  position: relative;
+  top: -6px;
+  width: 15px;
+  cursor: pointer;
+  background: #353535; }
+input[type=range].range::-moz-range-thumb {
+  border: 1px solid #212121;
+  border-radius: 1px;
+  height: 32px;
+  position: relative;
+  top: -6px;
+  width: 15px;
+  cursor: pointer;
+  background: #353535; }
+input[type=range].range::-ms-thumb {
+  border: 1px solid #212121;
+  border-radius: 1px;
+  height: 32px;
+  position: relative;
+  top: -6px;
+  width: 15px;
+  cursor: pointer;
+  background: #353535; }
+input[type=range].range::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 20px;
+  cursor: pointer;
+  background: #262626;
+  border: 1px solid #000;
+  border-radius: 1.5px;
+  -webkit-transition: 0.05s;
+  -moz-transition: 0.05s;
+  -ms-transition: 0.05s;
+  -o-transition: 0.05s;
+  transition: 0.05s; }
+input[type=range].range::-moz-range-track {
+  width: 100%;
+  height: 20px;
+  cursor: pointer;
+  background: #262626;
+  border: 1px solid #000;
+  border-radius: 1.5px; }
+input[type=range].range::-ms-track {
+  width: 100%;
+  height: 20px;
+  cursor: pointer;
+  background: #262626;
+  border: 1px solid #000;
+  border-radius: 1.5px;
+  color: transparent; }
+input[type=range].range::-ms-fill-upper {
+  background: #1b7ee0;
+  border: 1px solid #000;
+  border-radius: 2px; }
+input[type=range].range::-ms-fill-lower {
+  background: #1976d2;
+  border: 1px solid #000;
+  border-radius: 2px; }
+input[type=range].range:focus::-webkit-slider-runnable-track {
+  background: #2b2b2b; }
+input[type=range].range:focus::-ms-fill-upper {
+  background: #2e8ae6; }
+input[type=range].range:focus::-ms-fill-lower {
+  background: #2083e4; }
+
 /*# sourceMappingURL=main.css.map */
