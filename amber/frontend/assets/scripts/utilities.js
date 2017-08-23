@@ -145,7 +145,7 @@ class SoundPlayer {
         this.defaultVolume = volume;
 
         if (this.currentSound !== null) {
-            logSound.debug("Fading volume to " + volume);
+            logSound.debug("Setting volume to " + volume);
             this.currentSound.volume(volume);
         }
 

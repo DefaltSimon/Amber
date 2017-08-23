@@ -242,7 +242,8 @@ bindKeyChar(ESCAPE, handleMenu);
 const playerNameInput = findById("player-input"),
       playerNameLabel = findById("player-name"),
       playerSaveButton = findByClass("button--confirm"),
-      playerVolumeSlider = findById("slider-volume");
+      playerVolumeSlider = findById("slider-volume"),
+      playerAutosaveToggle = findById("autosave-toggle");
 
 // Sets up the player name option
 playerNameInput.innerHTML = config.playerName;
@@ -275,4 +276,9 @@ addEvent(playerSaveButton, "click", function () {
 addEvent(playerVolumeSlider, "change", function () {
     let volume = parseFloat(playerVolumeSlider.value / 100);
     config.setVolume(volume);
+});
+
+addEvent(playerAutosaveToggle, "change", function () {
+    logUI.debug("Autosave set to " + playerAutosaveToggle.checked);
+    config.autoSave = playerAutosaveToggle.checked;
 });
