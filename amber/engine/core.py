@@ -6,7 +6,7 @@ from typing import Union
 from . import directory
 from .types_ import Room, Item, Blueprint
 from .utils import Singleton
-from .exceptions import NotAllowed, IdMissing, NoSuchBlueprint, AmberException
+from .exceptions import IdMissing, AmberException
 
 # Flask webmodule import
 from ..web_modules.web_core import run_web
@@ -88,11 +88,11 @@ class Amber(metaclass=Singleton):
 
         self.starting_room = room
 
-    def walk_to(self, room: Union[Room, str]) -> Room:
+    def walk_to(self, room: Union[Room, str]) -> tuple:
         """
         Moves the player to a different room. A check
         :param room:
-        :return:
+        :return: tuple(Action/bool, message)
         """
         # Checks
         if isinstance(room, str):
@@ -106,16 +106,14 @@ class Amber(metaclass=Singleton):
             raise TypeError("room: expected Room/str, got {}".format(type(room)))
 
         st, msg = self.current_room.enter()
-        if not st:
-            raise NotAllowed(msg)
 
         # Main part
         self.previous_room = self.current_room
         self.current_room = room
 
-        return self.current_room
+        return st, msg
 
-    def combine(self, item1: Union[str, Item], item2: Union[str, Item]):
+    def combine(self, item1: Union[str, Item], item2: Union[str, Item]) -> Union[None, Blueprint]:
         """
         Combines two items together
         :param item1: First item to combine
@@ -136,10 +134,10 @@ class Amber(metaclass=Singleton):
                 break
 
         if not bp:
-            raise NoSuchBlueprint(self.defaults.failed_combine)
+            return None
 
         # Return new item
-        return bp.result
+        return bp
 
     def start(self, autosave=True, open_browser=True):
         # TODO implement autosave and saving
@@ -164,3 +162,9 @@ class Amber(metaclass=Singleton):
 
         if item not in self.inventory:
             self.inventory.append(item)
+
+    def _remove_from_inventory(self, item: Union[Item, str]):
+        item = Item.handle_id_or_object(item)
+
+        if item in self.inventory:
+            self.inventory.remove(item)
