@@ -124,17 +124,31 @@
 }
 
 .options {
-    .panel--sub {
-        padding: 8px;
+    .panel {
+        &--sub {
+            padding: 8px;
+        }
+        
+        &--container {
+            margin-top: 10px;
+        }
+        
+        &--title {
+            padding: 8px 8px 40px;
+        }
+        
     }
     
-    &--title {
-        font-size: 1.2em;
-        font-weight: 500;
-        letter-spacing: 0.2px;
-        margin-right: 20px;
+    .option {
+        &--title {
+            font-size: 1.2em;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            margin-right: 20px;
+            
+            min-width: 30%;
+        }
         
-        min-width: 30%;
     }
     
     

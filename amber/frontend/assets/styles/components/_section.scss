@@ -2,17 +2,12 @@ main .game-section {
     position: absolute;
     top: 0;
     height: 100%;
-    width: 100%;
+    width: 100vw;
     z-index: 10;
     
     opacity: 0;
     @include transition(opacity .9s ease-in-out);
     display: flex;
-    
-    margin: 0 6px;
-    &.nm {
-        margin: 0;
-    }
     
     
     &.nodisplay {
