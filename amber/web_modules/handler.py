@@ -453,23 +453,33 @@ def combine_items(data):
             else:
                 return status, additional
 
-    # TODO Item + Room
+    # Either of the items is an Item and a Room
+    elif (isinstance(obj1, Room) and isinstance(obj2, Item)) or (isinstance(obj1, Item) and isinstance(obj2, Room)):
+        # TODO room combine logic
+        pass
+
     # TODO prevent Room + Room
 
+
+######
 # ITEM
+# item/
+######
 
-
-@action.on("get-item")
+@action.on("item/get")
 def get_item_info(data):
-    item = Item.handle_id_or_object(data.get("id"))
+    """
+    Gets item info
+    :param data: dict(id)
 
-    if not item:
+    :return: dict(item: Item)
+    """
+    try:
+        item = Item.handle_id_or_object(data.get("id"))
+    except IdMissing:
         return Status.MISSING, {}
 
     return Status.OK, {"item": extract_from_item(item)}
-
-
-
 
 
 class SocketHandler:
