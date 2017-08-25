@@ -120,7 +120,7 @@ def parse_event_response(res: tuple) -> tuple:
 def extract_from_room(room: Room) -> dict:
     return {
         "name": room.name,
-        "description": room.description,
+        "description": extract_from_description(room.description),
         "msg": room.message,
         "image": room.image,
         "sound": room.sound,
@@ -146,8 +146,8 @@ def extract_from_item(item: Item) -> dict:
 def extract_from_description(desc: Description) -> dict:
     return {
         "text": desc.text,
-        "rooms": desc.rooms,
-        "items": desc.items,
+        "rooms": {a.id: extract_from_room_name_id(a) for a in desc.rooms},
+        "items": {a.id: extract_from_item(a) for a in desc.items},
         "id": desc.id,
     }
 
@@ -229,7 +229,7 @@ def dictify(obj):
 
 # /get
 
-@action.on("room/get/state")
+@action.on("room/get")
 def get_room_info(data):
     """
     Gets current room state
@@ -332,7 +332,7 @@ def move_to(data):
     resp = amber.walk_to(room)
     status, stuff = parse_event_response(resp)
 
-    return status, {**stuff, **{"room": extract_from_room(room)}}
+    return status, {**(stuff if type(stuff) is dict else {}), **{"room": extract_from_room(room)}}
 
 
 ######
@@ -399,6 +399,16 @@ def get_intro(data):
 # inventory/
 ######
 
+@action.on("inventory/get")
+def get_inventory(data):
+    """
+    Returns the current inventory state
+    :param data: None
+
+    :return: dict(inventory: list)
+    """
+    return dictify(amber.inventory)
+
 
 @action.on("inventory/use")
 def use_item(data):
@@ -423,7 +433,7 @@ def combine_items(data):
     :param data: dict(items: list)
 
     :return:
-    If successful, dict(item: Item, Action.remove_from_inv())
+    If successful, dict(item: Item, Action.remove_item())
     """
     item1, item2 = data.get("items")
 

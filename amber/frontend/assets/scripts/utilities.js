@@ -164,6 +164,7 @@ const Status = {
 };
 
 const Action = {
-    "new_item": "add_to_inventory",
-    "to_room": "move_to"
+    "add_item": "add_to_inventory",
+    "travel": "move_to",
+    "remove_item": "remove_from_inventory"
 };

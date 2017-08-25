@@ -47,6 +47,7 @@ let socketQueueCallback = {};
 
 // Basic communication
 const uiVersion = "0.1.0";
+let serverInfo = {};
 
 class AmberFrontend {
     sendHandshake() {
@@ -55,10 +56,11 @@ class AmberFrontend {
         };
 
         let cb = function (status, data) {
+            serverInfo = data;
             logWS.debug("Handshake complete");
         };
 
-        this.sendEvent("handshake", data, cb);
+        this.sendEvent("game/handshake", data, cb);
     }
 
     sendAction(action, data, callback) {
@@ -95,15 +97,15 @@ class AmberFrontend {
 
     // Game methods
     getInventory(cb) {
-        this.sendAction("get-inventory", null, cb)
+        this.sendAction("game/get/inventory", null, cb)
     }
 
     getIntro(cb) {
-        this.sendAction("get-intro", null, cb)
+        this.sendAction("game/get/intro", null, cb)
     }
 
     getCurrentRoom(cb) {
-        this.sendAction("get-room", null, cb)
+        this.sendAction("room/get", null, cb)
     }
 
     getItemInfo(item_id, cb) {
@@ -111,27 +113,27 @@ class AmberFrontend {
             "id": item_id
         };
 
-        this.sendAction("get-item", payload, cb)
+        this.sendAction("item/get", payload, cb)
     }
 
     getLocations(cb) {
-        this.sendAction("get-locations", null, cb)
+        this.sendAction("room/get/locations", null, cb)
     }
 
-    moveTo(room_id, cb) {
-        this.sendAction("move-to", {room: room_id}, cb)
+    enterRoom(room_id, cb) {
+        this.sendAction("room/enter", {room: room_id}, cb)
     }
 
     combineItems(item1_id, item2_id, cb) {
-        this.sendAction("combine", {item1: item1_id, item2: item2_id}, cb)
+        this.sendAction("inventory/combine", {item1: item1_id, item2: item2_id}, cb)
     }
 
     useItem(item_id, cb) {
-        this.sendAction("use-item", {item: item_id}, cb)
+        this.sendAction("inventory/use", {item: item_id}, cb)
     }
 
     useDescriptionItem (item_id, cb) {
-        this.sendAction("desc-use", {item: item_id}, cb)
+        this.sendAction("room/use/description", {item: item_id}, cb)
     }
 
     // TODO implement other endpoints
@@ -160,11 +162,14 @@ function parseActionClass(action) {
     let act = action.action;
     let obj = action.object;
 
-    if (act === Action.new_item) {
+    if (act === Action.add_item) {
         addToInventoryFromID(obj);
     }
-    else if (act === Action.to_room) {
+    else if (act === Action.travel) {
         moveToRoom(obj);
+    }
+    else if (act === Action.remove_item) {
+        refreshInventory();
     }
 }
 
@@ -178,33 +183,45 @@ function useDescriptionElement(self, item_id) {
     })
 }
 
-function sendInventoryUse(self, item_id) {
+function refreshInventory() {
+    amber.getInventory(function (status, data) {
+        logUI.log("Refreshing inventory");
+        clearInventory();
+
+        for (let i = 0; i < data.length; i++) {
+            addToInventory(data[i]);
+        }
+    });
+}
+
+function sendInventoryUse(item_id) {
     amber.useItem(item_id, function (status, data) {
         logAction.log("Inventory item used");
+
+        parseActionClass(data);
 
         roomMessageObj.innerHTML = data.message;
     })
 }
 
 function moveToRoom(room_id) {
-    amber.moveTo(room_id, function (status, data) {
-        if (status === "forbidden") {
+    amber.enterRoom(room_id, function (status, data) {
+        if (status === Status.FORBIDDEN) {
             roomMessageObj.innerHTML = data.message;
         }
         else {
             // Assume status is OK
-            logAction.log("Moved to " + data.name);
+            parseActionClass(data);
 
             _parseAndSetRoom(data);
+            logAction.log("Moved to " + data.name);
         }
     });
 
     amber.getLocations(function (status, data) {
-        let locations = data.locations;
         clearLocations();
-
-        for (let i = 0; i < locations.length; i++) {
-            addLocation(locations[i]);
+        for (let i = 0; i < data.length; i++) {
+            addLocation(data[i]);
         }
     })
 }
@@ -260,7 +277,7 @@ function addToInventory(item) {
     let el = document.createElement("li");
     el.innerHTML = item.name;
     el.setAttribute("item-id", item.id);
-    el.setAttribute("onclick", "sendInventoryUse(this, this.getAttribute(\"item-id\"))");
+    el.setAttribute("onclick", "sendInventoryUse(this.getAttribute(\"item-id\"))");
 
     inventoryObj.appendChild(el);
 }
@@ -269,6 +286,7 @@ function addToInventoryFromID(item_id) {
     amber.getItemInfo(item_id, function (status, data) {
         if (status === Status.MISSING) {
             logUI.error("Missing item: " + item_id);
+            return;
         }
 
         addToInventory(data.item)
@@ -287,6 +305,12 @@ function addLocation(loc) {
 function clearLocations() {
     while (locationsObj.lastChild) {
         locationsObj.removeChild(locationsObj.lastChild);
+    }
+}
+
+function clearInventory() {
+    while (inventoryObj.lastChild) {
+        inventoryObj.removeChild(inventoryObj.lastChild)
     }
 }
 
@@ -317,6 +341,7 @@ socket.onopen = function () {
         // Proceed to getting the first room info
         amber.getCurrentRoom(function (status, data) {
             logUI.log("Setting initial room state");
+            console.debug(data);
 
             _parseAndSetRoom(data);
 
@@ -324,23 +349,13 @@ socket.onopen = function () {
             sectionFade(sections["section-intro"]);
         });
 
-        amber.getInventory(function (status, data) {
-            logUI.log("Setting inventory");
-
-            let items = data.inventory;
-
-            for (let i = 0; i < items.length; i++) {
-                addToInventory(items[i]);
-            }
-        });
+        refreshInventory();
 
         amber.getLocations(function (status, data) {
             logUI.log("Setting locations");
 
-            let locations = data.locations;
-
-            for (let i = 0; i < locations.length; i++) {
-                addLocation(locations[i]);
+            for (let i = 0; i < data.length; i++) {
+                addLocation(data[i]);
             }
         })
 
