@@ -34,3 +34,5 @@ wheels/
 dev_tests/
 amber/frontend/assets/images/*.png
 amber/frontend/assets/scripts/howlerLocal.js
+amber/frontend/assets/styles/main.css
+amber/frontend/assets/styles/main.css.map
