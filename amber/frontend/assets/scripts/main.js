@@ -227,6 +227,10 @@ function moveToRoom(room_id) {
 }
 
 function _parseAndSetRoom(data) {
+    if (typeof data["room"] !== typeof undefined) {
+        data = data.room;
+    }
+
     roomNameObj.innerHTML = data.name;
 
     // Parses description

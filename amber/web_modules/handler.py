@@ -111,7 +111,7 @@ def parse_event_response(res: tuple) -> tuple:
         return Status.OK, {**{"message": message}, **o_act.to_dict()}
 
     if isinstance(o_act, bool):
-        return Status.OK if o_act else Status.FORBIDDEN, message
+        return Status.OK if o_act else Status.FORBIDDEN, {"message": message}
 
     # The first parameter should always be either Action or bool
     raise RuntimeError("First tuple parameter should be an Action object or a bool, got {}".format(type(o_act).__name__))
