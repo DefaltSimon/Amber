@@ -1,7 +1,10 @@
 # coding=utf-8
 import logging
 from random import randint
-from ujson import dumps
+try:
+    from ujson import dumps
+except ImportError:
+    from json import dumps
 import inspect
 
 from .web_utils import Status, get_engine_version
