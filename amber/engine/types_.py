@@ -2,11 +2,11 @@
 import logging
 import re
 from typing import Union
-from enum import Enum
 
 from . import presence
 from .exceptions import IdMissing, AmberException
 from .events import EventManager
+from .utils import get_attribute_values
 
 log = logging.getLogger(__name__)
 
@@ -121,7 +121,7 @@ class Description:
 
 
 class Room:
-    class Events(Enum):
+    class Event:
         # Events
         ENTER = "enter"
         LEAVE = "leave"
@@ -176,7 +176,7 @@ class Room:
         self._entered = False
 
         # Used for events
-        events = [e.value for e in Room.Events]
+        events = get_attribute_values(Room.Event)
         self._event_mgr = EventManager(self._name, events)
 
         if starting_room:
@@ -197,6 +197,10 @@ class Room:
         else:
             return self._name
 
+    @name.setter
+    def name(self, value):
+        self._name = value
+
     @property
     def description(self) -> Union[str, Description]:
         res = self._event_mgr.dispatch_event("description", self._description)
@@ -204,6 +208,10 @@ class Room:
             return res
         else:
             return self._description
+
+    @description.setter
+    def description(self, value):
+        self._description = value
 
     @property
     def message(self) -> str:
@@ -217,6 +225,10 @@ class Room:
                 self._entered = True
                 return self._message
 
+    @message.setter
+    def message(self, value):
+        self._message = value
+
     @property
     def locations(self) -> list:
         res = self._event_mgr.dispatch_event("locations", self._locations)
@@ -224,6 +236,10 @@ class Room:
             return res
         else:
             return self._locations
+
+    @locations.setter
+    def locations(self, value):
+        self._locations = value
 
     @property
     def image(self):
@@ -233,6 +249,10 @@ class Room:
         else:
             return self._image
 
+    @description.setter
+    def description(self, value):
+        self._description = value
+
     @property
     def sound(self):
         res = self._event_mgr.dispatch_event("sound", self._sound)
@@ -240,6 +260,10 @@ class Room:
             return res
         else:
             return self._sound
+
+    @sound.setter
+    def sound(self, value):
+        self._sound = value
 
     # EVENT REGISTERING
     def event(self, event_name):
@@ -338,6 +362,9 @@ class Room:
 
 
 class Blueprint:
+    class Event:
+        COMBINE = "combine"
+
     # noinspection PyProtectedMember
     def __init__(self, ingredient1, ingredient2, result, message: str = None, recipe_id: str = None):
         """
@@ -370,7 +397,8 @@ class Blueprint:
         else:
             self.id = _generate_id(recipe_id)
 
-        self._event_mgr = EventManager(self.id, ["combine"])
+        events = get_attribute_values(Blueprint.Event)
+        self._event_mgr = EventManager(self.id, events)
 
         presence.obj_collector.add_blueprint(self)
 
@@ -404,6 +432,15 @@ class Blueprint:
 
 
 class Item:
+    class Event:
+        # Getters
+        NAME_GET = "name"
+        DESCRIPTION_GET = "description"
+        BLUEPRINTS_GET = "blueprints"
+        # Events
+        PICKUP = "pickup"
+        USE = "use"
+
     def __init__(self, name, description: Union[str, list] = None, blueprints: list = None, item_id: str = None):
         """
         Creates an Item.
@@ -441,7 +478,7 @@ class Item:
             self.id = _generate_id(item_id)
 
         # Used for events
-        events = ["name", "description", "blueprints", "pickup", "use"]
+        events = get_attribute_values(Item.Event)
         self._event_mgr = EventManager(self._name, events)
 
         self.amber = _get_amber()
@@ -561,4 +598,4 @@ class IntroScreen:
         if presence.is_in_world("intro"):
             log.warning("IntroScreen already exists, overwriting")
 
-        presence.add_to_world(self, "intro")
+        presence.add_to_world(self, "intro", force=True)

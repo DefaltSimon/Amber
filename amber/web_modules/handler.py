@@ -148,7 +148,7 @@ def extract_from_item(item: Item) -> dict:
 
 def extract_from_description(desc: Description) -> dict:
     return {
-        "text": desc.text,
+        "text": desc.text if hasattr(desc, "text") else desc,
         "rooms": {a.id: extract_from_room_name_id(a) for a in desc.rooms},
         "items": {a.id: extract_from_item(a) for a in desc.items},
         "id": desc.id,

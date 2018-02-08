@@ -14,9 +14,14 @@ log = logging.getLogger(__name__)
 world = {}
 
 
-def add_to_world(instance, name):
+def add_to_world(instance, name, force=False):
     if name not in world.keys():
         world[name] = instance
+
+    # Only overwrite if force is True
+    else:
+        if force:
+            world[name] = instance
 
 
 def remove_from_world(name):
