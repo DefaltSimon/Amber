@@ -58,10 +58,12 @@ def simplify(url: str):
     if url.startswith(("assets/", "/assets")):
         l_path, filename = os.path.split(url)
         log.info("\nHMMMMMM\n{}, {}\n{}".format(l_path, filename, os.path.join(FRONTEND_DIR, l_path)))
+        log.info("ISFILE: {}\n\n".format(os.path.isfile(os.path.join(FRONTEND_DIR, l_path, filename))))
         return send_from_directory(os.path.join(FRONTEND_DIR, l_path), filename)
     else:
         f_path, fn = os.path.split(os.path.join(GAME_DIR, url))
         log.info("\nHMMMMMM2\n{}, {}\n{}".format(f_path, fn, os.path.join(FRONTEND_DIR, f_path)))
+        log.info("ISFILE2: {}\n\n".format(os.path.isfile(os.path.join(FRONTEND_DIR, f_path, fn))))
         return send_from_directory(f_path, fn)
 
 
