@@ -3,3 +3,4 @@ include LICENSE
 include requirements.txt
 include changes.txt
 include examples/*
+include amber/*

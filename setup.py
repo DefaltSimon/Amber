@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(name='Amber',
-      version='0.1',
+      version='0.1.1',
       description='Text Adventure interpreter',
       classifiers=[
           'Development Status :: 4 - Beta',
@@ -19,4 +19,4 @@ setup(name='Amber',
       keywords="defaltsimon amber text adventure",
       packages=['amber'],
       install_requires=requirements,
-      zip_safe=False)
+      zip_safe=True)
