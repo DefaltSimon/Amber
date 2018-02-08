@@ -57,9 +57,11 @@ def add_header(r):
 def simplify(url: str):
     if url.startswith(("assets/", "/assets")):
         l_path, filename = os.path.split(url)
+        log.info("HMMMMM " + os.path.join(FRONTEND_DIR, l_path))
         return send_from_directory(os.path.join(FRONTEND_DIR, l_path), filename)
     else:
         f_path, fn = os.path.split(os.path.join(GAME_DIR, url))
+        log.info("HMMMMM2 " + os.path.join(FRONTEND_DIR, l_path))
         return send_from_directory(f_path, fn)
 
 
