@@ -12,15 +12,10 @@ from amber.web_modules.sockets import Socket
 from amber.web_modules.web_utils import threaded
 
 
-MODULE_DIR = os.path.dirname(__file__)
+MODULE_DIR = os.path.abspath(os.path.dirname(__file__))
 FRONTEND_DIR = os.path.join(MODULE_DIR, "..", "frontend")
 
 GAME_DIR = os.path.dirname(sys.argv[0])
-
-
-def get_main_page():
-    with open(os.path.join(FRONTEND_DIR, "index.html"), "r") as file:
-        return file.read()
 
 HOST = "localhost"
 FLASK_PORT = randint(8560, 8566)
@@ -38,7 +33,8 @@ logging.getLogger("werkzeug").setLevel(logging.WARNING)
 
 @app.route("/")
 def main_page():
-    return render_template_string(get_main_page(), host=HOST, port=SOCKET_PORT)
+    with open(os.path.join(FRONTEND_DIR, "index.html"), "r") as file:
+        return render_template_string(file.read(), host=HOST, port=SOCKET_PORT)
 
 
 # ONLY FOR DEVELOPMENT!
