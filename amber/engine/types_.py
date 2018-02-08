@@ -2,8 +2,9 @@
 import logging
 import re
 from typing import Union
+from enum import Enum
 
-from . import directory
+from . import presence
 from .exceptions import IdMissing, AmberException
 from .events import EventManager
 
@@ -11,10 +12,10 @@ log = logging.getLogger(__name__)
 
 
 def _get_amber():
-    if not directory.is_in_world("amber"):
+    if not presence.is_in_world("amber"):
         raise RuntimeError("please instantiate Amber before creating Rooms/Items/etc..")
 
-    return directory.world["amber"]
+    return presence.world["amber"]
 
 
 def _generate_id(preferred: str):
@@ -23,19 +24,19 @@ def _generate_id(preferred: str):
     :param preferred: The id you prefer is generated
     :return: Generated ID (unique to all types)
     """
-    if not directory.id_exists(preferred):
-        directory.add_id(preferred)
+    if not presence.id_exists(preferred):
+        presence.add_id(preferred)
         return preferred
     else:
         # Loops until a non-used number is found
         c = 1
-        while directory.id_exists(preferred) and preferred is not None:
+        while presence.id_exists(preferred) and preferred is not None:
             buff = "{}{}".format(preferred, c)
             preferred = str(buff)
 
             c += 1
 
-        directory.add_id(preferred)
+        presence.add_id(preferred)
         return preferred
 
 
@@ -46,17 +47,17 @@ def _get_item_postponed(item_id):
     :param item_id: id of the Item
     :return: Item / None
     """
-    yield item_id, directory.obj_collector.find_item_by_id(item_id)
+    yield item_id, presence.obj_collector.find_item_by_id(item_id)
 
 
 def _get_room_postponed(room_id):
     """
     For internal use, to postpone getting the room until all rooms are loaded
-    Ab)uses generators
+    (Ab)uses generators
     :param room_id: id of the Room
     :return: Room / None
     """
-    yield directory.obj_collector.find_room_by_id(room_id)
+    yield presence.obj_collector.find_room_by_id(room_id)
 
 
 # Regex for use in descriptions
@@ -84,7 +85,7 @@ class Description:
         self.id = None
         if not desc_id:
             self.id = _generate_id("description")
-        elif directory.id_exists(desc_id):
+        elif presence.id_exists(desc_id):
             raise RuntimeError("object with id '{}' already exists".format(desc_id))
         else:
             self.id = _generate_id(desc_id)
@@ -106,7 +107,7 @@ class Description:
     def _finalize_loading(self):
         """
         Internal, should be called when all stuff is loaded
-        :return: None
+        Goes though all rooms and items and converts string references to actual objects, if necessary
         """
         for q_room in self._q_rooms:
             room = Room.handle_id_or_object(q_room)
@@ -120,6 +121,18 @@ class Description:
 
 
 class Room:
+    class Events(Enum):
+        # Events
+        ENTER = "enter"
+        LEAVE = "leave"
+        # Getters
+        DESCRIPTION_GET = "description"
+        MESSAGE_GET = "message"
+        NAME_GET = "name"
+        LOCATIONS_GET = "locations"
+        IMAGE_GET = "image"
+        SOUND_GET = "sound"
+
     def __init__(self, name: str, description: Union[str, list] = None, initial_msg: str = None, locations: list = None,
                  image=None, sound=None, room_id: str = None, starting_room: bool = False):
         """
@@ -134,8 +147,8 @@ class Room:
         :param starting_room: bool indicating if this room should be the starting one
         """
         self._name = name
-        self._desc = Description(description)
-        self._msg = initial_msg
+        self._description = Description(description)
+        self._message = initial_msg
 
         self._locations = []
         if locations:
@@ -154,7 +167,7 @@ class Room:
         self.id = None
         if not room_id:
             self.id = _generate_id(self._name)
-        elif directory.id_exists(room_id):
+        elif presence.id_exists(room_id):
             raise RuntimeError("object with id '{}' already exists".format(room_id))
         else:
             self.id = _generate_id(room_id)
@@ -163,17 +176,17 @@ class Room:
         self._entered = False
 
         # Used for events
-        events = ["enter", "leave", "description", "message", "name", "locations", "image", "sound"]
+        events = [e.value for e in Room.Events]
         self._event_mgr = EventManager(self._name, events)
 
         if starting_room:
-            if not directory.is_in_world("amber"):
-                raise AmberException("amber was not instantiated!")
+            if not presence.is_in_world("amber"):
+                raise AmberException("amber is not yet instantiated!")
 
-            directory.world.get("amber").set_starting_point(self)
+            presence.world.get("amber").set_starting_point(self)
 
         # Add item to cache
-        directory.obj_collector.add_room(self)
+        presence.obj_collector.add_room(self)
 
     # PROPERTIES
     @property
@@ -186,15 +199,15 @@ class Room:
 
     @property
     def description(self) -> Union[str, Description]:
-        res = self._event_mgr.dispatch_event("description", self._desc)
+        res = self._event_mgr.dispatch_event("description", self._description)
         if res:
             return res
         else:
-            return self._desc
+            return self._description
 
     @property
     def message(self) -> str:
-        res = self._event_mgr.dispatch_event("message", self._msg)
+        res = self._event_mgr.dispatch_event("message", self._message)
         if res is not None:
             return res
         else:
@@ -202,7 +215,7 @@ class Room:
                 return ""
             else:
                 self._entered = True
-                return self._msg
+                return self._message
 
     @property
     def locations(self) -> list:
@@ -255,17 +268,21 @@ class Room:
         if isinstance(room_or_id, Room):
             return room_or_id
         else:
-            room = directory.obj_collector.find_room_by_id(room_or_id)
+            room = presence.obj_collector.find_room_by_id(room_or_id)
             if room:
                 return room
             else:
                 raise IdMissing("room {} does not exist".format(room_or_id))
 
     def _finalize_loading(self):
+        """
+        If a string was passed as a location, resolve its name to the actual Room object.
+        Then, run the same thing for Descriptions
+        """
         log.debug("Finalizing {}".format(self._name))
         for c, room_i in enumerate(self._locations.copy()):
             if isinstance(room_i, str):
-                room = directory.obj_collector.find_room_by_id(room_i)
+                room = presence.obj_collector.find_room_by_id(room_i)
                 if not room:
                     raise IdMissing("Room id {} does not exist".format(room_i))
             else:
@@ -273,8 +290,8 @@ class Room:
 
             self._locations[c] = room
 
-        if isinstance(self._desc, Description):
-            self._desc._finalize_loading()
+        if isinstance(self._description, Description):
+            self._description._finalize_loading()
 
     def add_location(self, location):
         """
@@ -295,7 +312,7 @@ class Room:
         self._locations.remove(loc)
 
     def set_as_starting_room(self):
-        amber = directory.world.get("amber")
+        amber = presence.world.get("amber")
         if not amber:
             raise AmberException("Amber is not yet instantiated, do so at the top of the script!")
 
@@ -348,14 +365,14 @@ class Blueprint:
         self.id = None
         if not recipe_id:
             self.id = _generate_id("{}-{}".format(ingredient1.name, ingredient2.name))
-        elif directory.id_exists(recipe_id):
+        elif presence.id_exists(recipe_id):
             raise RuntimeError("blueprint with id '{}' already exists".format(recipe_id))
         else:
             self.id = _generate_id(recipe_id)
 
         self._event_mgr = EventManager(self.id, ["combine"])
 
-        directory.obj_collector.add_blueprint(self)
+        presence.obj_collector.add_blueprint(self)
 
     # Utility functions
     def matches_items(self, item1, item2):
@@ -407,7 +424,7 @@ class Item:
                     self._blueprints.append(rec)
                 elif isinstance(rec, str):
                     # Find by id
-                    f_rec = directory.obj_collector.find_recipe_by_id(rec)
+                    f_rec = presence.obj_collector.find_recipe_by_id(rec)
                     if f_rec:
                         self._blueprints.append(f_rec)
                     else:
@@ -418,7 +435,7 @@ class Item:
         self.id = None
         if not item_id:
             self.id = _generate_id(self._name)
-        elif directory.id_exists(item_id):
+        elif presence.id_exists(item_id):
             raise RuntimeError("object with id '{}' already exists".format(item_id))
         else:
             self.id = _generate_id(item_id)
@@ -430,7 +447,7 @@ class Item:
         self.amber = _get_amber()
 
         # Add item to cache
-        directory.obj_collector.add_item(self)
+        presence.obj_collector.add_item(self)
 
     # PROPERTIES
     @property
@@ -514,7 +531,7 @@ class Item:
         if isinstance(item_or_id, Item):
             return item_or_id
         else:
-            item = directory.obj_collector.find_item_by_id(item_or_id)
+            item = presence.obj_collector.find_item_by_id(item_or_id)
             if item:
                 return item
             else:
@@ -541,7 +558,7 @@ class IntroScreen:
         self.image = str(image)
         self.sound = str(sound)
 
-        if directory.is_in_world("intro"):
+        if presence.is_in_world("intro"):
             log.warning("IntroScreen already exists, overwriting")
 
-        directory.add_to_world(self, "intro")
+        presence.add_to_world(self, "intro")

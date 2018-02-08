@@ -1,6 +1,8 @@
 # coding=utf-8
 
+##############
 # Utility to keep track of certain instances
+##############
 
 import logging
 from .utils import Singleton
@@ -8,9 +10,10 @@ from .utils import Singleton
 
 log = logging.getLogger(__name__)
 
-# Storage for singletons
-
+# Storage for singletons and other things that should have one instance
 world = {}
+
+
 def add_to_world(instance, name):
     if name not in world.keys():
         world[name] = instance
@@ -25,22 +28,23 @@ def is_in_world(name):
     return name in world.keys()
 
 
-
 # Keeps track of already-used ids
-
 ids = []
+
+
 def add_id(id_):
     if id_ not in ids:
         ids.append(id_)
 
+
 def id_exists(id_):
     return id_ in ids
+
 
 def remove_id(id_):
     global ids
     if id_ in ids:
         ids = [i for i in ids if i != id_]
-
 
 
 class ObjectCollector(metaclass=Singleton):
@@ -58,10 +62,10 @@ class ObjectCollector(metaclass=Singleton):
         # if not isinstance(item, Item):
         #     raise TypeError("expected Item, got {}".format(type(item)))
         if item not in self.items:
-            log.debug("Adding item:{} to cache".format(item.name))
+            log.debug("Adding item:{} to world".format(item.name))
             self.items.append(item)
         else:
-            log.warning("Item {} was already in cache".format(item.name))
+            log.warning("Item {} was already in world".format(item.name))
 
     def add_room(self, room):
         """
@@ -73,10 +77,10 @@ class ObjectCollector(metaclass=Singleton):
         #     raise TypeError("expected Room, got {}".format(type(room)))
 
         if room not in self.items:
-            log.debug("Adding room:{} to cache".format(room.name))
+            log.debug("Adding room:{} to world".format(room.name))
             self.rooms.append(room)
         else:
-            log.warning("Room {} was already in cache".format(room.name))
+            log.warning("Room {} was already in world".format(room.name))
 
     def add_blueprint(self, bp):
         """
@@ -87,10 +91,10 @@ class ObjectCollector(metaclass=Singleton):
         # if not isinstance(recipe, Room):
         #     raise TypeError("expected Blueprint, got {}".format(type(recipe)))
         if bp not in self.blueprints:
-            log.debug("Adding blueprint:{} to cache".format(bp.id))
+            log.debug("Adding blueprint:{} to world".format(bp.id))
             self.blueprints.append(bp)
         else:
-            log.warning("Blueprint {} was already in cache".format(bp.id))
+            log.warning("Blueprint {} was already in world".format(bp.id))
 
     def find_item_by_id(self, item_id: str):
         """
@@ -147,6 +151,7 @@ class ObjectCollector(metaclass=Singleton):
             return obj
 
         return None
+
 
 # Singleton, so it only has one instance
 obj_collector = ObjectCollector()

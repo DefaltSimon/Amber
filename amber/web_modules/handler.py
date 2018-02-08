@@ -10,7 +10,7 @@ import inspect
 from .web_utils import Status, get_engine_version
 from ..engine.types_ import Room, Description, Item, Blueprint
 from ..engine.exceptions import NoSuchBlueprint, IdMissing
-from ..engine import action as act, directory
+from ..engine import action as act, presence
 
 log = logging.getLogger(__name__)
 
@@ -384,7 +384,7 @@ def get_intro(data):
 
     :return: dict(title, image, sound)
     """
-    intro = directory.world.get("intro")
+    intro = presence.world.get("intro")
     if not intro:
         return Status.MISSING, None
 
@@ -440,7 +440,7 @@ def combine_items(data):
     """
     item1, item2 = data.get("items")
 
-    obj1, obj2 = directory.obj_collector.find_by_id(item1), directory.obj_collector.find_by_id(item2)
+    obj1, obj2 = presence.obj_collector.find_by_id(item1), presence.obj_collector.find_by_id(item2)
 
     if isinstance(obj1, Item) and isinstance(obj2, Item):
         # Both are items, do a normal combine

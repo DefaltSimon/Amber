@@ -3,7 +3,7 @@ import logging
 import time
 from typing import Union
 
-from . import directory
+from . import presence
 from .types_ import Room, Item, Blueprint
 from .utils import Singleton
 from .exceptions import IdMissing, AmberException
@@ -66,13 +66,13 @@ class Amber(metaclass=Singleton):
         self.defaults = defaults or MessageDefaults()
 
         # Add instance ref to global directory
-        if not directory.is_in_world("amber"):
-            directory.add_to_world(self, "amber")
+        if not presence.is_in_world("amber"):
+            presence.add_to_world(self, "amber")
 
     # noinspection PyProtectedMember
     @staticmethod
-    def _late_load():
-        for room in directory.obj_collector.rooms:
+    def _lazy_load():
+        for room in presence.obj_collector.rooms:
             room._finalize_loading()
 
     def set_starting_point(self, room):
@@ -82,7 +82,7 @@ class Amber(metaclass=Singleton):
         if isinstance(room, str):
             r_name = str(room)
 
-            room = directory.obj_collector.find_room_by_id(room)
+            room = presence.obj_collector.find_room_by_id(room)
             if not room:
                 raise IdMissing("no such id: {}".format(r_name))
 
@@ -98,7 +98,7 @@ class Amber(metaclass=Singleton):
         if isinstance(room, str):
             r_name = str(room)
 
-            room = directory.obj_collector.find_room_by_id(room)
+            room = presence.obj_collector.find_room_by_id(room)
             if not room:
                 raise IdMissing("{} does not exist".format(r_name))
 
@@ -147,7 +147,7 @@ class Amber(metaclass=Singleton):
         :param open_browser: If you want to automatically open the browser
         :return: None
         """
-        self._late_load()
+        self._lazy_load()
 
         if not self.starting_room:
             raise AmberException("no starting room")
