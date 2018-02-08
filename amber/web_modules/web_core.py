@@ -64,7 +64,7 @@ def simplify(url: str):
         log.info("\nHMMMMMM2\n{}, {}\n{}".format(f_path, fn, os.path.join(GAME_DIR, f_path)))
         log.info("ISFILE2: {}\n\n".format(os.path.isfile(os.path.join(GAME_DIR, f_path, fn))))
         return send_from_directory(f_path, fn)
--
+
 
 @threaded
 def _run_flask():
