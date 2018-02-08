@@ -34,7 +34,6 @@ class Socket:
 
     async def start(self, amber):
         self.s_cor = await websockets.serve(self.parse_socket, self.host, self.port)
-        self.loop.create_task(self.s_cor)
 
         log.info("Websocket ready")
 
