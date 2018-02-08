@@ -61,8 +61,8 @@ def simplify(url: str):
         return send_from_directory(os.path.join(FRONTEND_DIR, l_path), filename)
     else:
         f_path, fn = os.path.split(os.path.join(GAME_DIR, url))
-        log.info("\nHMMMMMM2\n{}, {}\n{}".format(f_path, fn, os.path.join(FRONTEND_DIR, f_path)))
-        log.info("ISFILE2: {}\n\n".format(os.path.isfile(os.path.join(FRONTEND_DIR, f_path, fn))))
+        log.info("\nHMMMMMM2\n{}, {}\n{}".format(f_path, fn, os.path.join(GAME_DIR, f_path)))
+        log.info("ISFILE2: {}\n\n".format(os.path.isfile(os.path.join(GAME_DIR, f_path, fn))))
         return send_from_directory(f_path, fn)
 
 
