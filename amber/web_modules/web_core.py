@@ -16,6 +16,7 @@ MODULE_DIR = os.path.abspath(os.path.dirname(__file__))
 FRONTEND_DIR = os.path.join(MODULE_DIR, "..", "frontend")
 
 GAME_DIR = os.path.dirname(sys.argv[0])
+print("\n\nHMM INDEED: {}\n\n".format(GAME_DIR))
 
 HOST = "localhost"
 FLASK_PORT = randint(8560, 8566)
@@ -57,8 +58,6 @@ def add_header(r):
 def simplify(url: str):
     if url.startswith(("assets/", "/assets")):
         l_path, filename = os.path.split(url)
-        log.info("\nHMMMMMM\n{}, {}\n{}".format(l_path, filename, os.path.join(FRONTEND_DIR, l_path)))
-        log.info("ISFILE: {}\n\n".format(os.path.isfile(os.path.join(FRONTEND_DIR, l_path, filename))))
         return send_from_directory(os.path.join(FRONTEND_DIR, l_path), filename)
     else:
         f_path, fn = os.path.split(os.path.join(GAME_DIR, url))
