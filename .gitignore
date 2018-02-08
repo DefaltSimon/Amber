@@ -32,6 +32,8 @@ wheels/
 
 # Custom
 dev_tests/
+
+# Things that should not be uploaded
 amber/frontend/assets/images/*.png
 amber/frontend/assets/scripts/howlerLocal.js
 amber/frontend/assets/styles/main.css
