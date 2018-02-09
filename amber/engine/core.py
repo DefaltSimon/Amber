@@ -105,13 +105,13 @@ class Amber(metaclass=Singleton):
         if not isinstance(room, (Room, str)):
             raise TypeError("room: expected Room/str, got {}".format(type(room)))
 
-        st, msg = self.current_room.enter()
+        resp = self.current_room.enter()
 
         # Main part
         self.previous_room = self.current_room
         self.current_room = room
 
-        return st, msg
+        return resp
 
     def combine(self, item1: Union[str, Item], item2: Union[str, Item]) -> Union[None, Blueprint]:
         """
@@ -147,7 +147,9 @@ class Amber(metaclass=Singleton):
         :param open_browser: If you want to automatically open the browser
         :return: None
         """
+        log.debug("Starting lazy-load")
         self._lazy_load()
+        log.debug("Finished lazy-load")
 
         if not self.starting_room:
             raise AmberException("no starting room")

@@ -354,7 +354,7 @@ class Room:
 
         :return: tuple
         """
-        res = self._event_mgr.dispatch_event("enter", self)
+        res = self._event_mgr.dispatch_event("enter")
         if not res:
             return True, self.message
         else:

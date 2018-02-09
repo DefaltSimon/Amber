@@ -13,10 +13,13 @@
         color: $color-black;
         font-size: 2em;
         font-weight: 700;
+        text-align: center;
     }
     
     &--img {
-        max-width: 100%;
+        //max-width: 100%;
+        
+        max-width: 15%;
         height: auto;
         text-align: center;
         

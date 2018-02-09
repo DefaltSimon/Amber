@@ -34,9 +34,9 @@ window.onbeforeunload = function (e) {
 */
 
 // LOGGER setup
-const logWS = new Logger("WebSocket"),
+const logWS     = new Logger("WebSocket"),
       logAction = new Logger("Action"),
-      logUI = new Logger("UI");
+      logUI     = new Logger("UI");
 
 // Setup the websocket
 logWS.debug("Connecting to " + host + ":" + port);
@@ -155,12 +155,16 @@ socket.onmessage = function (evt) {
     }
 
     socketQueueCallback[c_id](status, data);
+    delete socketQueueCallback[c_id];
 
 };
 
-function parseActionClass(action) {
-    let act = action.action;
-    let obj = action.object;
+function resolveAction(action_cls) {
+    logAction.log("Resolving action...");
+    console.log(action_cls);
+
+    let act = action_cls.action;
+    let obj = action_cls.object;
 
     if (act === Action.add_item) {
         addToInventoryFromID(obj);
@@ -179,7 +183,7 @@ function useDescriptionElement(self, item_id) {
         logAction.log("Description item used");
 
         roomMessageObj.innerHTML = data.message;
-        parseActionClass(data);
+        resolveAction(data);
     })
 }
 
@@ -198,7 +202,7 @@ function sendInventoryUse(item_id) {
     amber.useItem(item_id, function (status, data) {
         logAction.log("Inventory item used");
 
-        parseActionClass(data);
+        resolveAction(data);
 
         roomMessageObj.innerHTML = data.message;
     })
@@ -206,24 +210,28 @@ function sendInventoryUse(item_id) {
 
 function moveToRoom(room_id) {
     amber.enterRoom(room_id, function (status, data) {
+        console.log("moveToRoom");
+        console.log(data);
         if (status === Status.FORBIDDEN) {
             roomMessageObj.innerHTML = data.message;
         }
         else {
             // Assume status is OK
-            parseActionClass(data);
+            resolveAction(data);
 
             _parseAndSetRoom(data);
             logAction.log("Moved to " + data.name);
         }
+
+        // When moved, refresh locations
+        amber.getLocations(function (status, data) {
+            clearLocations();
+            for (let i = 0; i < data.length; i++) {
+                addLocation(data[i]);
+            }
+        })
     });
 
-    amber.getLocations(function (status, data) {
-        clearLocations();
-        for (let i = 0; i < data.length; i++) {
-            addLocation(data[i]);
-        }
-    })
 }
 
 function _parseAndSetRoom(data) {
